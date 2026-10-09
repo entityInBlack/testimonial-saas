@@ -32,8 +32,7 @@
                 </div>
 
                 <p class="text-xs text-gray-500">
-                    Share this link with customers. The public submission form is built in
-                    Step 3 — until then, the link returns a 404.
+                    Share this link with customers so they can leave a testimonial.
                 </p>
 
                 <div class="flex items-center justify-end gap-3 pt-4">

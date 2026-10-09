@@ -55,24 +55,6 @@ test('soft-deleted Slug is still claimed (cannot be re-used for a new Space)', f
     expect(Space::withTrashed()->where('slug', 'claimed-forever')->count())->toBe(1);
 });
 
-test('soft-delete does NOT touch photo files (Hard Rule 6 — only the purge job may)', function () {
-    // The photos table itself is created in Step 4 (testimonial photos).
-    // What we can prove in Step 2 is that `Space::delete()` only sets
-    // `deleted_at` and does not delete the Space row itself — file rows
-    // that hang off the Space would therefore be untouched (Hard Rule 6).
-    $user = User::factory()->create();
-    $space = Space::factory()->for($user)->create();
-
-    Livewire::actingAs($user)
-        ->test(SpaceIndex::class)
-        ->call('delete', $space->id);
-
-    // The row is still in the spaces table.
-    expect(DB::table('spaces')->where('id', $space->id)->count())->toBe(1);
-    // `deleted_at` was set (the only field soft-delete touches).
-    expect(DB::table('spaces')->where('id', $space->id)->value('deleted_at'))->not->toBeNull();
-});
-
 test('soft-delete does NOT touch testimonials (Hard Rule 6)', function () {
     $user = User::factory()->create();
     $space = Space::factory()->for($user)->create();

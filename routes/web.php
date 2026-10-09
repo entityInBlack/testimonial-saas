@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\SpaceSlugCheckController;
+use App\Livewire\Inbox\InboxIndex;
+use App\Livewire\PublicSubmission;
 use App\Livewire\Spaces\SpaceCreated;
 use App\Livewire\Spaces\SpaceDeleted;
 use App\Livewire\Spaces\SpaceForm;
@@ -17,6 +19,17 @@ Route::view('dashboard', 'dashboard')
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
+
+// --- Public submission page (Step 3) -------------------------------------
+//
+// No middleware: anonymous visitors can submit a testimonial. The
+// {slug} parameter is a string (NOT a model id) so Livewire does NOT
+// trigger implicit route binding; the component's mount() loads the
+// live Space and aborts 404 for unknown, soft-deleted, or tombstoned
+// slugs. The slug pattern restricts to URL-safe characters only.
+Route::get('s/{slug}', PublicSubmission::class)
+    ->where('slug', '[a-z0-9-]+')
+    ->name('public.show');
 
 // --- Space management (auth only) ----------------------------------------
 //
@@ -46,6 +59,9 @@ Route::middleware('auth')->group(function () {
     Route::get('spaces/{space}/edit', SpaceForm::class)
         ->whereNumber('space')
         ->name('spaces.edit');
+
+    // /inbox — Step 4: per-Space list of testimonials (auth only).
+    Route::get('inbox', InboxIndex::class)->name('inbox.index');
 });
 
 require __DIR__.'/auth.php';

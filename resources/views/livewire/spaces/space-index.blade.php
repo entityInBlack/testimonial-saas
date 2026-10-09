@@ -41,16 +41,6 @@
                 </div>
             @endif
 
-            @if ($this->isAtCap)
-                <div class="bg-red-50 border border-red-200 text-red-900 px-4 py-3 rounded"
-                     data-testid="cap-block">
-                    <p class="text-sm">
-                        You've reached the Free plan limit of {{ $this->maxSpaces }} Spaces.
-                        Delete a Space or contact support.
-                    </p>
-                </div>
-            @endif
-
             <div class="bg-white shadow-sm rounded-lg divide-y divide-gray-100"
                  data-testid="space-list">
                 @forelse ($this->spaces as $space)
