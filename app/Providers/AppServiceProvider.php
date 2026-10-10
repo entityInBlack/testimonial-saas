@@ -82,5 +82,14 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinutes(15, 5)->by('register|email|'.$email.'|'.$request->ip());
         });
+
+        // Embed public API — /api/spaces/{public_id}/testimonials.
+        // 120 requests per minute per IP. Build-order Step 7 hard rule 8.
+        // The limiter uses `throttle:embed-api` so the route definition
+        // names the limit explicitly rather than magic-numbers in the
+        // route string.
+        RateLimiter::for('embed-api', function (Request $request) {
+            return Limit::perMinute(120)->by($request->ip());
+        });
     }
 }

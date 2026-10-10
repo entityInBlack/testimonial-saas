@@ -52,6 +52,11 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
+                            <a href="{{ route('spaces.embed', ['space' => $space->id]) }}" wire:navigate
+                               class="text-sm text-indigo-600 hover:text-indigo-900"
+                               data-testid="embed-link">
+                                Embed
+                            </a>
                             <a href="{{ route('spaces.edit', ['space' => $space->id]) }}" wire:navigate
                                class="text-sm text-indigo-600 hover:text-indigo-900"
                                data-testid="edit-link">

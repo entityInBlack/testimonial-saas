@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\SpaceEmbedTestimonials;
 use App\Http\Controllers\SpaceSlugCheckController;
 use App\Livewire\Dashboard\DashboardIndex;
 use App\Livewire\Inbox\InboxIndex;
 use App\Livewire\PublicSubmission;
+use App\Livewire\Spaces\EmbedBuilder;
 use App\Livewire\Spaces\SpaceCreated;
 use App\Livewire\Spaces\SpaceDeleted;
 use App\Livewire\Spaces\SpaceForm;
@@ -66,8 +68,58 @@ Route::middleware('auth')->group(function () {
         ->whereNumber('space')
         ->name('spaces.edit');
 
+    // Embed builder — Step 7. Owner-only. {space} is the id;
+    // EmbedBuilder::mount() loads the model and 404s for non-owners
+    // and soft-deleted Spaces (single source of truth: same policy
+    // pattern as SpaceForm / InboxIndex).
+    Route::get('spaces/{space}/embed', EmbedBuilder::class)
+        ->whereNumber('space')
+        ->name('spaces.embed');
+
     // /inbox — Step 4: per-Space list of testimonials (auth only).
     Route::get('inbox', InboxIndex::class)->name('inbox.index');
 });
+
+// --- Public embed API (Step 7) -----------------------------------------
+//
+// Registered in routes/web.php but EXPLICITLY outside the `web`
+// middleware group. Hard rule 8: no session, no cookies, no CSRF.
+// The route sits in web.php for the single-source-of-truth reason
+// but is opted out of the web middleware group via
+// `withoutMiddleware('web')`. HandleCors (global middleware) still
+// adds `Access-Control-Allow-Origin: *` from config/cors.php. The
+// 120/min throttle is applied via the `embed-api` named limiter
+// defined in AppServiceProvider::boot().
+Route::get('api/spaces/{public_id}/testimonials', SpaceEmbedTestimonials::class)
+    ->where('public_id', '[A-Za-z0-9]+')
+    ->middleware('throttle:embed-api')
+    ->withoutMiddleware(['web'])
+    ->name('api.spaces.testimonials');
+
+// --- embed.js (Step 7) --------------------------------------------------
+//
+// The embed snippet references a permanent URL — `{APP_URL}/embed.js` —
+// that the customer pastes verbatim on their own site. v1 serves the
+// file from `public/embed.js` via this route so we can set the
+// `Cache-Control: max-age=60` header. v2 may put a CDN in front of
+// this URL or swap the file for a versioned one.
+//
+// `withoutMiddleware('web')` strips the session/start-session path so
+// no Set-Cookie leaks. The file is read at request time; if it is
+// missing the route 404s. The file at `public/embed.js` is also
+// served directly by the PHP web server (and any production web
+// server) when the route is not consulted — that fallback uses the
+// web server's default cache headers, which is fine for v1.
+Route::get('embed.js', function () {
+    $path = public_path('embed.js');
+    abort_unless(is_file($path), 404);
+
+    return response()->file($path, [
+        'Content-Type'  => 'application/javascript; charset=utf-8',
+        'Cache-Control' => 'public, max-age=60',
+    ]);
+})
+    ->withoutMiddleware(['web'])
+    ->name('embed.js');
 
 require __DIR__.'/auth.php';
