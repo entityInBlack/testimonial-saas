@@ -35,28 +35,12 @@
                 be restored.
             </p>
 
-            <div class="bg-white shadow-sm rounded-lg divide-y divide-gray-100"
+            <div class="bg-white shadow-sm rounded-lg"
                  data-testid="deleted-list">
-                @forelse ($this->spaces as $space)
-                    <div class="flex items-center justify-between p-4" data-testid="deleted-row">
-                        <div>
-                            <div class="font-medium text-gray-900">{{ $space->title }}</div>
-                            <div class="text-xs text-gray-500">
-                                /s/{{ $space->slug }} ·
-                                deleted {{ $space->deleted_at?->diffForHumans() }}
-                            </div>
-                        </div>
-                        <button wire:click="restore({{ $space->id }})"
-                                class="text-sm text-indigo-600 hover:text-indigo-900"
-                                data-testid="restore-button">
-                            Restore
-                        </button>
-                    </div>
-                @empty
-                    <div class="p-6 text-center text-gray-500" data-testid="empty-state">
-                        No deleted Spaces.
-                    </div>
-                @endforelse
+                <x-spaces.deleted-list
+                    :spaces="$this->spaces"
+                    action="restore"
+                />
             </div>
         </div>
     </div>

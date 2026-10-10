@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SpaceSlugCheckController;
+use App\Livewire\Dashboard\DashboardIndex;
 use App\Livewire\Inbox\InboxIndex;
 use App\Livewire\PublicSubmission;
 use App\Livewire\Spaces\SpaceCreated;
@@ -12,8 +13,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
+// /dashboard — Step 5: counters + open deletion-requests list +
+// deleted Spaces tab + time-series graph + free-plan info note.
+// Auth-only (the previous `verified` middleware is removed:
+// Breeze's email verification is OFF in v1 per Hard Rule and the
+// Step 1 design decision "no email verification").
+Route::get('dashboard', DashboardIndex::class)
+    ->middleware('auth')
     ->name('dashboard');
 
 Route::view('profile', 'profile')

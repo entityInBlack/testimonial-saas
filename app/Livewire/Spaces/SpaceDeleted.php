@@ -3,6 +3,7 @@
 namespace App\Livewire\Spaces;
 
 use App\Models\Space;
+use App\Services\SpaceRestoreService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
@@ -21,6 +22,12 @@ use Livewire\Component;
  *     `embed_configurations` row. Do NOT touch testimonials. Only the
  *     purge job (Step 6) physically deletes files / rows.
  *   - The slug stays claimed forever.
+ *
+ * The Restore action delegates to `SpaceRestoreService` — the SAME
+ * service the dashboard's Deleted Spaces tab uses, so the cap check,
+ * tombstone check, and owner authorization are defined in ONE place.
+ * After a successful restore, this page redirects back to itself so
+ * the post-restore flash survives a page reload.
  */
 #[Layout('layouts.app')]
 class SpaceDeleted extends Component
@@ -31,37 +38,29 @@ class SpaceDeleted extends Component
     }
 
     /**
-     * Restore a soft-deleted Space. Authorization: must be the owner.
-     * The cap check is a business rule, not a policy — if the owner is
-     * already at `max_spaces` LIVE Spaces, the restore sets a flash
-     * notice and the row is NOT cleared.
+     * Restore a soft-deleted Space. The actual cap / tombstone /
+     * authorization logic lives in `SpaceRestoreService`. This method
+     * is just a thin Livewire adapter.
      */
-    public function restore(int $spaceId): void
+    public function restore(int $spaceId, SpaceRestoreService $service): void
     {
-        $space = Space::withTrashed()->find($spaceId);
+        $result = $service->restore($spaceId);
 
-        if (! $space || $space->user_id !== Auth::id() || $space->deleted_at === null) {
+        if ($result->isNotFound()) {
             abort(404);
         }
 
-        // Tombstoned Spaces cannot be restored (PRD §11).
-        if ($space->isTombstoned()) {
+        if ($result->isTombstoned()) {
             $this->addError('restore', 'This Space is past the restore window and cannot be restored.');
 
             return;
         }
 
-        // Cap check — restore blocked if owner is already at max.
-        $max = (int) config('limits.max_spaces', 3);
-        $live = Space::live()->where('user_id', Auth::id())->count();
-
-        if ($live >= $max) {
-            $this->addError('restore', "You're at the Free plan limit of {$max} Spaces. Delete a Space first.");
+        if ($result->isCapReached()) {
+            $this->addError('restore', "You're at the Free plan limit of {$result->cap} Spaces. Delete a Space first.");
 
             return;
         }
-
-        $space->restore();
 
         session()->flash('status', 'Space restored.');
         $this->redirectRoute('spaces.deleted', navigate: true);
