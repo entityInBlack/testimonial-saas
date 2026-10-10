@@ -672,3 +672,75 @@ test('Space past retention: even if one of its testimonials FAILS photo delete, 
     //    counted, not raised).
     expect($exit)->toBe(0);
 });
+
+test('per-Space log entry reports that Space\'s own testimonial/photo count, not the running total', function () {
+    // Regression test for the bug where
+    // App\Services\PurgeService::purgeEligibleSpaces() reported the
+    // run-wide cumulative count in each "purge:run space tombstoned"
+    // log entry, instead of the per-Space count.
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $spaceA = Space::factory()->for($user)->create();
+    $spaceB = Space::factory()->for($user)->create();
+
+    // 3 testimonials for A, 1 for B. Photos are irrelevant here —
+    // we are testing the COUNT field, not the photo path.
+    Testimonial::factory()->for($spaceA)->create(['profile_photo' => null]);
+    Testimonial::factory()->for($spaceA)->create(['profile_photo' => null]);
+    Testimonial::factory()->for($spaceA)->create(['profile_photo' => null]);
+    Testimonial::factory()->for($spaceB)->create(['profile_photo' => null]);
+
+    // Both Spaces past retention.
+    $spaceA->delete();
+    $spaceB->delete();
+    DB::table('spaces')->where('id', $spaceA->id)->update([
+        'deleted_at' => CarbonImmutable::now()->subDays(31),
+    ]);
+    DB::table('spaces')->where('id', $spaceB->id)->update([
+        'deleted_at' => CarbonImmutable::now()->subDays(31),
+    ]);
+
+    // Capture log records on the `purge` channel — same pattern as
+    // the "audit log entries" test.
+    $testHandler = new \Monolog\Handler\TestHandler();
+    $testHandler->setFormatter(new \Monolog\Formatter\JsonFormatter());
+    Log::channel('purge')->getLogger()->pushHandler($testHandler);
+
+    Artisan::call('purge:run');
+
+    $records = $testHandler->getRecords();
+
+    // Pull out the per-Space "purge:run space tombstoned" entries.
+    $spaceEntries = array_values(array_filter(
+        $records,
+        fn ($r) => ($r['message'] ?? null) === 'purge:run space tombstoned',
+    ));
+
+    // One entry per Space.
+    expect(count($spaceEntries))->toBe(2);
+
+    // The log payload is JSON-formatted into $r['context'] (because
+    // we attached a JsonFormatter). Normalise so we can index by
+    // field name regardless of formatter choice.
+    $bySpace = [];
+    foreach ($spaceEntries as $rec) {
+        $ctx = $rec['context'] ?? [];
+        if (is_string($ctx)) {
+            $decoded = json_decode($ctx, true);
+            $ctx = is_array($decoded) ? $decoded : [];
+        }
+        $bySpace[(int) ($ctx['space_id'] ?? 0)] = $ctx;
+    }
+
+    // Space A: 3 of its own testimonials.
+    expect($bySpace[(int) $spaceA->id]['purged_testimonials'] ?? null)->toBe(3);
+    // Space B: 1 of its own testimonials.
+    expect($bySpace[(int) $spaceB->id]['purged_testimonials'] ?? null)->toBe(1);
+
+    // Defensive — neither entry should carry the cumulative total
+    // of 4 (A's 3 + B's 1).
+    foreach ($bySpace as $spaceId => $ctx) {
+        expect($ctx['purged_testimonials'] ?? null)->not->toBe(4);
+    }
+});

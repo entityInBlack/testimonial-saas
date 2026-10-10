@@ -178,6 +178,18 @@ class PurgeService
                 foreach ($spaces as $space) {
                     $spaceId = (int) $space->id;
 
+                    // Per-Space counters — these are THIS Space's own
+                    // testimonial/photo/failed counts and are what the
+                    // "purge:run space tombstoned" log line reports.
+                    // They are reset to 0 at the start of every Space
+                    // so the log entry is self-contained. The closure-
+                    // captured $purgedTestimonials / $purgedPhotos /
+                    // $failed remain the RUN-WIDE totals and continue
+                    // to accumulate across all Spaces in this run.
+                    $spacePurgedTestimonials = 0;
+                    $spacePurgedPhotos = 0;
+                    $spaceFailed = 0;
+
                     // Step 1 — every testimonial of this Space, live
                     // AND soft-deleted, regardless of the testimonial's
                     // own deleted_at. Chunked so we don't OOM a huge
@@ -203,11 +215,14 @@ class PurgeService
 
                             if ($ok) {
                                 $purgedTestimonials++;
+                                $spacePurgedTestimonials++;
                                 if ($hadPhoto) {
                                     $purgedPhotos++;
+                                    $spacePurgedPhotos++;
                                 }
                             } else {
                                 $failed++;
+                                $spaceFailed++;
                             }
                         }
 
@@ -229,8 +244,9 @@ class PurgeService
 
                     Log::channel('purge')->info('purge:run space tombstoned', [
                         'space_id' => $spaceId,
-                        'purged_testimonials' => $purgedTestimonials,
-                        'purged_photos' => $purgedPhotos,
+                        'purged_testimonials' => $spacePurgedTestimonials,
+                        'purged_photos' => $spacePurgedPhotos,
+                        'failed_testimonials' => $spaceFailed,
                         'deleted_embed_configurations' => $deletedEmbed,
                     ]);
                 }

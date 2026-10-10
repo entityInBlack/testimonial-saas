@@ -14,13 +14,16 @@ use Illuminate\Support\Facades\Log;
  * code 0 on success.
  *
  * SECURITY: the DB password is NEVER passed on the command line
- * and never appears in any log or output. We write a one-line
- * options file to a tmp path (mode 0600 on POSIX, file is deleted
- * before the process exits) and pass `--defaults-file=<tmp>` so
- * mysqldump reads the password from there.
+ * and never appears in any log or output. We pass the password to
+ * the child process via the `MYSQL_PWD` environment variable, which
+ * mysqldump reads on every platform. The env var exists only for
+ * the lifetime of the child process and is not logged, persisted,
+ * or echoed back.
  *
- * On Windows the file mode 0600 is a no-op; we still delete the
- * file in `finally`.
+ * We also set `MYSQL_TEST_LOGIN_FILE` to an empty string so that a
+ * user-configured login-path file cannot silently override the
+ * connection settings we just passed on the command line (defence
+ * in depth — the `MYSQL_PWD` env var already wins).
  *
  * No backup rotation or upload — out of scope for v1.
  */
