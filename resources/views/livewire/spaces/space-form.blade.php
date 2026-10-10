@@ -159,8 +159,13 @@
                     <a href="{{ route('spaces.index') }}" wire:navigate class="text-sm text-gray-600 hover:text-gray-900">
                         Cancel
                     </a>
-                    <x-primary-button data-testid="space-save" :disabled="! $spaceId && $this->isAtCap">
-                        {{ $spaceId ? __('Save changes') : __('Create Space') }}
+                    <x-primary-button
+                        data-testid="space-save"
+                        :disabled="! $spaceId && $this->isAtCap"
+                        wire:loading.attr="disabled"
+                        wire:target="save">
+                        <span wire:loading.remove wire:target="save">{{ $spaceId ? __('Save changes') : __('Create Space') }}</span>
+                        <span wire:loading wire:target="save">Working…</span>
                     </x-primary-button>
                 </div>
             </form>

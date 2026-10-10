@@ -153,11 +153,14 @@
 
                     <button type="button"
                             wire:click="toggleWallOfLove"
+                            wire:loading.attr="disabled"
+                            wire:target="toggleWallOfLove"
                             @disabled(! $row->consent_given)
                             title="{{ $row->consent_given ? '' : 'Blocked — no consent on this row' }}"
                             class="px-2 py-1 text-[11px] rounded border {{ $row->is_wall_of_love ? 'bg-pink-50 border-pink-300 text-pink-800' : 'border-gray-300 text-gray-700 hover:bg-gray-50' }} {{ $row->consent_given ? '' : 'opacity-50 cursor-not-allowed' }}"
                             data-testid="row-walloflove">
-                        {{ $row->is_wall_of_love ? 'WoL ✓' : 'Wall of Love' }}
+                        <span wire:loading.remove wire:target="toggleWallOfLove">{{ $row->is_wall_of_love ? 'WoL ✓' : 'Wall of Love' }}</span>
+                        <span wire:loading wire:target="toggleWallOfLove">Working…</span>
                     </button>
 
                     <button type="button"
@@ -177,19 +180,25 @@
                     @if ($row->consent_given)
                         <button type="button"
                                 wire:click="withdrawConsent"
+                                wire:loading.attr="disabled"
+                                wire:target="withdrawConsent"
                                 wire:confirm="Withdraw consent for '{{ $row->name }}'? The row stays but the consent audit fields are kept as history."
                                 class="px-2 py-1 text-[11px] rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
                                 data-testid="row-withdraw">
-                            Withdraw consent
+                            <span wire:loading.remove wire:target="withdrawConsent">Withdraw consent</span>
+                            <span wire:loading wire:target="withdrawConsent">Working…</span>
                         </button>
                     @endif
 
                     <button type="button"
                             wire:click="softDelete"
+                            wire:loading.attr="disabled"
+                            wire:target="softDelete"
                             wire:confirm="Move '{{ $row->name }}' to Trash? You can restore it from the Trash tab within {{ (int) config('purge.retention_days', 30) }} days."
                             class="px-2 py-1 text-[11px] rounded border border-red-200 text-red-700 hover:bg-red-50"
                             data-testid="row-delete">
-                        Delete
+                        <span wire:loading.remove wire:target="softDelete">Delete</span>
+                        <span wire:loading wire:target="softDelete">Working…</span>
                     </button>
                 </div>
             @endif
@@ -198,18 +207,24 @@
                 <div class="flex flex-wrap gap-1 mt-1">
                     <button type="button"
                             wire:click="restore"
+                            wire:loading.attr="disabled"
+                            wire:target="restore"
                             class="px-2 py-1 text-[11px] rounded border border-emerald-300 text-emerald-800 bg-emerald-50 hover:bg-emerald-100"
                             data-testid="row-restore">
-                        Restore
+                        <span wire:loading.remove wire:target="restore">Restore</span>
+                        <span wire:loading wire:target="restore">Working…</span>
                     </button>
 
                     @if ($showForget ?? false)
                         <button type="button"
                                 wire:click="forget"
+                                wire:loading.attr="disabled"
+                                wire:target="forget"
                                 wire:confirm="Forget '{{ $row->name }}' permanently? This deletes the testimonial and its photo, and closes any matching open deletion request."
                                 class="px-2 py-1 text-[11px] rounded border border-red-300 text-red-800 bg-red-50 hover:bg-red-100"
                                 data-testid="row-forget">
-                            Forget now
+                            <span wire:loading.remove wire:target="forget">Forget now</span>
+                            <span wire:loading wire:target="forget">Working…</span>
                         </button>
                     @endif
                 </div>

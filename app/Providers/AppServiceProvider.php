@@ -91,5 +91,17 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('embed-api', function (Request $request) {
             return Limit::perMinute(120)->by($request->ip());
         });
+
+        // Deletion request form — /privacy/request-deletion.
+        // 5 submissions per hour per IP (Step 8 / Part C). The form is
+        // anonymous so there is no per-email key. The Livewire
+        // component does RateLimiter::hit() at the START of every
+        // attempt (success, failure, or honeypot) — matching the
+        // Step 1 pattern. The named limiter also lets the test
+        // inspect the key shape (per-IP, 5/hour) without coupling to
+        // the component internals.
+        RateLimiter::for('deletion-request', function (Request $request) {
+            return Limit::perHour(5)->by('deletion-request|ip|'.$request->ip());
+        });
     }
 }

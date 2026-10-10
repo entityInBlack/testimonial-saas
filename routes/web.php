@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\SpaceEmbedTestimonials;
 use App\Http\Controllers\SpaceSlugCheckController;
 use App\Livewire\Dashboard\DashboardIndex;
 use App\Livewire\Inbox\InboxIndex;
+use App\Livewire\Privacy\DeletionRequestForm;
 use App\Livewire\PublicSubmission;
 use App\Livewire\Spaces\EmbedBuilder;
 use App\Livewire\Spaces\SpaceCreated;
@@ -13,7 +15,21 @@ use App\Livewire\Spaces\SpaceIndex;
 use App\Models\Space;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+// Public landing page (Step 8). Replaces the Laravel welcome view.
+// Plain Blade render; the controller reads `config('limits.*')`
+// directly so the copy tracks the limits without re-deployment.
+Route::get('/', [PrivacyController::class, 'landing'])->name('landing');
+
+// Public privacy page (Step 8). Static Blade; lists every consent
+// version, the retention window, and the link to the deletion form.
+Route::get('/privacy', [PrivacyController::class, 'show'])->name('privacy.show');
+
+// Public deletion-request form (Step 8). The form is a Livewire
+// component so the success view can be served without a redirect
+// (every outcome ends on the same thank-you body; the test in Part C
+// asserts the byte-for-byte equality of the five scenarios).
+Route::get('/privacy/request-deletion', DeletionRequestForm::class)
+    ->name('privacy.request-deletion');
 
 // /dashboard — Step 5: counters + open deletion-requests list +
 // deleted Spaces tab + time-series graph + free-plan info note.
@@ -121,5 +137,14 @@ Route::get('embed.js', function () {
 })
     ->withoutMiddleware(['web'])
     ->name('embed.js');
+
+// --- demo-embed.html (Step 8 / Part F) ---------------------------------
+//
+// `public/demo-embed.html` is served directly by the web server (and
+// by `php artisan serve`) as a static file, so no Laravel route is
+// needed. Originally this file was routed through web.php so a Pest
+// HTTP test could GET it; that test is gone — the page is a static
+// asset, not a route. See tests/Feature/Embed/DemoEmbedPageTest.php
+// for the static checks.
 
 require __DIR__.'/auth.php';

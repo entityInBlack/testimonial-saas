@@ -49,6 +49,19 @@ class InboxRow extends Component
 
     public ?string $flash = null;
 
+    /**
+     * Per-row affordance flags, set by the parent InboxIndex. The
+     * parent only sets showRestore/showForget when the current filter
+     * is 'trash', so action affordances are filter-scoped. Defaults
+     * match the row view's fallbacks so the row still renders when
+     * mounted standalone (e.g. in Step 4's cross-user auth tests).
+     */
+    public bool $showRestore = false;
+
+    public bool $showForget = false;
+
+    public bool $showSoftDelete = true;
+
     public function mount(int $testimonialId): void
     {
         $this->testimonialId = $testimonialId;
@@ -283,6 +296,16 @@ class InboxRow extends Component
     public function forget(): void
     {
         $this->refresh();
+
+        // Forget is a Trash-only action. If the row is still live
+        // (deleted_at IS NULL), refuse — the owner must softDelete
+        // first. This mirrors the build order (Step 4) and the PRD
+        // §7 "Forget now (Trash only)" rule.
+        if ($this->testimonial->deleted_at === null) {
+            $this->flash = 'Forget now is only available on trashed testimonials.';
+
+            return;
+        }
 
         $t = $this->testimonial;
         $spaceId = (int) $this->space->id;

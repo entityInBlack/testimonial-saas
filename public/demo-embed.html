@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Testimonial SaaS &mdash; embed demo</title>
+    <meta name="description" content="A plain HTML page that pastes the embed snippet for any Space and shows the rendered wall of love.">
+    <style>
+        :root { color-scheme: light; }
+        html, body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9fafb;
+            color: #111827;
+        }
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 16px 64px;
+        }
+        header.demo-header h1 {
+            font-size: 28px;
+            margin: 0 0 4px 0;
+        }
+        header.demo-header p {
+            font-size: 14px;
+            color: #4b5563;
+            margin: 0 0 16px 0;
+        }
+        .demo-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: end;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        .demo-controls label {
+            font-size: 12px;
+            color: #4b5563;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .demo-controls input[type="text"] {
+            font: inherit;
+            font-size: 14px;
+            padding: 6px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            min-width: 220px;
+        }
+        .demo-controls button {
+            font: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 6px 14px;
+            border: 1px solid #4f46e5;
+            background: #4f46e5;
+            color: #ffffff;
+            border-radius: 4px;
+        }
+        .demo-controls button.secondary {
+            border-color: #d1d5db;
+            background: #ffffff;
+            color: #111827;
+        }
+        .demo-snippet {
+            background: #111827;
+            color: #f3f4f6;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 12px;
+            line-height: 1.45;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .demo-host {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+            min-height: 80px;
+        }
+        .demo-empty {
+            color: #6b7280;
+            font-size: 13px;
+        }
+        .demo-error {
+            color: #b91c1c;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header class="demo-header">
+            <h1>Embed demo</h1>
+            <p>
+                Paste a Space's 12-character <code>public_id</code> (or a
+                <code>?space=</code> query parameter) to render the wall of
+                love for that Space. Set the API base URL to point at the
+                host serving the embed script and the public API.
+            </p>
+        </header>
+
+        <section class="demo-controls" aria-label="Embed controls">
+            <label>
+                <span>API base URL</span>
+                <input
+                    id="demo-api-base"
+                    type="text"
+                    inputmode="url"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="127.0.0.1:8000"
+                >
+            </label>
+            <label>
+                <span>public_id</span>
+                <input
+                    id="demo-public-id"
+                    type="text"
+                    inputmode="text"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="e.g. 4f2a8b91c0d3"
+                >
+            </label>
+            <button id="demo-load" type="button">Load</button>
+            <button id="demo-clear" type="button" class="secondary">Clear</button>
+        </section>
+
+        <section aria-label="Embed snippet">
+            <pre class="demo-snippet" id="demo-snippet">&lt;div data-testimonial-space="&lt;public_id&gt;"&gt;&lt;/div&gt;
+&lt;script src="&lt;api_base&gt;/embed.js" async&gt;&lt;/script&gt;</pre>
+        </section>
+
+        <section class="demo-host" id="demo-host" aria-label="Embed output">
+            <p class="demo-empty" id="demo-empty">Enter a public_id above and click Load.</p>
+        </section>
+    </div>
+
+    <script>
+        // The snippet shape MUST match EmbedBuilder::snippet() in
+        // app/Livewire/Spaces/EmbedBuilder.php — see
+        // <div data-testimonial-space="X"></div> followed by
+        // <script src="BASE/embed.js" async><\/script>. The demo
+        // page is the visitor-facing documentation of the
+        // snippet, so any drift between the two breaks the
+        // documented contract. The script src's path is the
+        // caller-controlled "API base URL" + "/embed.js".
+        (function () {
+            'use strict';
+
+            var apiBaseInput = document.getElementById('demo-api-base');
+            var input = document.getElementById('demo-public-id');
+            var loadBtn = document.getElementById('demo-load');
+            var clearBtn = document.getElementById('demo-clear');
+            var host = document.getElementById('demo-host');
+            var empty = document.getElementById('demo-empty');
+            var snippet = document.getElementById('demo-snippet');
+
+            // Default the API base URL: when this page is served
+            // over http/https we reuse the current origin so a
+            // locally-served demo loads the same host's embed.js
+            // and API. Otherwise (file://, custom schemes) we
+            // fall back to the dev server's address.
+            function defaultApiBase() {
+                var loc = window.location;
+                if (loc && (loc.protocol === 'http:' || loc.protocol === 'https:') && loc.origin) {
+                    return loc.origin;
+                }
+                return 'http://127.0.0.1:8000';
+            }
+
+            // Allowed characters for a public_id: alphanumeric. The
+            // public_id is generated by Space::generatePublicId() as
+            // a 12-char string. We restrict to [A-Za-z0-9] of length
+            // 1..64 so the page never feeds garbage to the API.
+            function isValidPublicId(value) {
+                if (typeof value !== 'string') { return false; }
+                var v = value.trim();
+                if (v.length < 1 || v.length > 64) { return false; }
+                return /^[A-Za-z0-9]+$/.test(v);
+            }
+
+            // Trim a trailing slash so joining with "/embed.js"
+            // never produces "//embed.js" or "/embed.js" twice.
+            function normalizeBase(value) {
+                var v = (value == null) ? '' : String(value).trim();
+                while (v.length > 0 && v.charAt(v.length - 1) === '/') {
+                    v = v.substring(0, v.length - 1);
+                }
+                return v;
+            }
+
+            // Read ?space= from the URL, if present, BEFORE mounting
+            // the embed. (The embed itself ignores the query string;
+            // it just looks for [data-testimonial-space] nodes.)
+            function readSpaceFromQuery() {
+                var p = new URLSearchParams(window.location.search);
+                var v = p.get('space');
+                return v == null ? null : v;
+            }
+
+            // Build the snippet shown above the embed. This is
+            // the same shape EmbedBuilder::snippet() produces.
+            function snippetFor(publicId, base) {
+                var b = normalizeBase(base);
+                return [
+                    '<div data-testimonial-space="' + publicId + '"></div>',
+                    '<script src="' + b + '/embed.js" async><\/script>'
+                ].join('\n');
+            }
+
+            // Mount the embed inside #demo-host by:
+            //   1. Removing any prior placeholder + script tag.
+            //   2. Inserting a fresh <div data-testimonial-space="X">.
+            //   3. Inserting a fresh <script src="BASE/embed.js" async>.
+            //   The embed.js file finds the placeholder by walking
+            //   [data-testimonial-space] nodes and reads the same
+            //   BASE for its API calls.
+            //
+            // The host element is built with DOM APIs only —
+            // document.createElement + setAttribute + textContent.
+            // We never write raw HTML to the host, and we never
+            // assign to .style. Any user text the embed renders
+            // is set via textContent inside the embed itself.
+            function mountEmbed(publicId, base) {
+                while (host.firstChild) {
+                    host.removeChild(host.firstChild);
+                }
+
+                var placeholder = document.createElement('div');
+                placeholder.setAttribute('data-testimonial-space', publicId);
+                host.appendChild(placeholder);
+
+                var s = document.createElement('script');
+                s.src = normalizeBase(base) + '/embed.js';
+                s.async = true;
+                host.appendChild(s);
+            }
+
+            function showEmpty() {
+                while (host.firstChild) {
+                    host.removeChild(host.firstChild);
+                }
+                var p = document.createElement('p');
+                p.className = 'demo-empty';
+                p.textContent = 'Enter a public_id above and click Load.';
+                host.appendChild(p);
+            }
+
+            function showError(msg) {
+                while (host.firstChild) {
+                    host.removeChild(host.firstChild);
+                }
+                var p = document.createElement('p');
+                p.className = 'demo-error';
+                p.textContent = msg;
+                host.appendChild(p);
+            }
+
+            function load() {
+                var v = (input.value || '').trim();
+                if (!isValidPublicId(v)) {
+                    showError('That does not look like a public_id. Use 1-64 letters and digits only.');
+                    return;
+                }
+                var base = (apiBaseInput.value || '').trim() || defaultApiBase();
+                snippet.textContent = snippetFor(v, base);
+                mountEmbed(v, base);
+            }
+
+            function clearAll() {
+                input.value = '';
+                apiBaseInput.value = defaultApiBase();
+                snippet.textContent = '<div data-testimonial-space="<public_id>"></div>\n<script src="<api_base>/embed.js" async><\/script>';
+                showEmpty();
+            }
+
+            // Initialise the API base input with the default so
+            // the snippet's "shape" line is immediately useful.
+            apiBaseInput.value = defaultApiBase();
+
+            loadBtn.addEventListener('click', load);
+            clearBtn.addEventListener('click', clearAll);
+            input.addEventListener('keydown', function (e) {
+                if (e && e.key === 'Enter') {
+                    load();
+                }
+            });
+            apiBaseInput.addEventListener('keydown', function (e) {
+                if (e && e.key === 'Enter') {
+                    load();
+                }
+            });
+
+            // ?space= auto-load. The embed fetches asynchronously,
+            // so the page never blocks on the network.
+            var initial = readSpaceFromQuery();
+            if (initial && isValidPublicId(initial)) {
+                input.value = initial;
+                load();
+            }
+        })();
+    </script>
+</body>
+</html>

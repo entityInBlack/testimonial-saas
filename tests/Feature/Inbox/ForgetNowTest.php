@@ -20,6 +20,11 @@ use Livewire\Livewire;
  *   3. forceDelete() the testimonial row LAST — so the
  *      nullOnDelete on deletion_requests.testimonial_id does not
  *      fire before Step 1.
+ *
+ * Note: forget() is Trash-only (build order Step 4 / PRD §7). Each
+ * test here moves the row to Trash through the real InboxRow
+ * softDelete action before calling forget, so the production flow
+ * (Inbox → Delete → Trash → Forget now) is what these tests exercise.
  */
 
 test('forget closes matching open deletion_requests, deletes photo, and force-deletes the row', function () {
@@ -47,6 +52,11 @@ test('forget closes matching open deletion_requests, deletes photo, and force-de
         'created_at' => now(),
         'updated_at' => now(),
     ]);
+
+    // Trash first through the real InboxRow softDelete action.
+    Livewire::actingAs($user)
+        ->test(InboxRow::class, ['testimonialId' => $row->id])
+        ->call('softDelete');
 
     Livewire::actingAs($user)
         ->test(InboxRow::class, ['testimonialId' => $row->id])
@@ -84,6 +94,11 @@ test('forget matches deletion_requests by testimonial_id too (not just email)', 
         'created_at' => now(),
         'updated_at' => now(),
     ]);
+
+    // Trash first through the real InboxRow softDelete action.
+    Livewire::actingAs($user)
+        ->test(InboxRow::class, ['testimonialId' => $row->id])
+        ->call('softDelete');
 
     Livewire::actingAs($user)
         ->test(InboxRow::class, ['testimonialId' => $row->id])
@@ -123,6 +138,11 @@ test('forget works when the photo file is already missing (no error, still compl
         'updated_at' => now(),
     ]);
 
+    // Trash first through the real InboxRow softDelete action.
+    Livewire::actingAs($user)
+        ->test(InboxRow::class, ['testimonialId' => $row->id])
+        ->call('softDelete');
+
     Livewire::actingAs($user)
         ->test(InboxRow::class, ['testimonialId' => $row->id])
         ->call('forget');
@@ -155,6 +175,11 @@ test('forget only acts on OPEN deletion_requests (skips already-acted)', functio
         ],
     ]);
 
+    // Trash first through the real InboxRow softDelete action.
+    Livewire::actingAs($user)
+        ->test(InboxRow::class, ['testimonialId' => $row->id])
+        ->call('softDelete');
+
     Livewire::actingAs($user)
         ->test(InboxRow::class, ['testimonialId' => $row->id])
         ->call('forget');
@@ -186,6 +211,11 @@ test('forget runs Step 1 BEFORE Step 3 (UPDATE before forceDelete) — nullOnDel
         'created_at' => now(),
         'updated_at' => now(),
     ]);
+
+    // Trash first through the real InboxRow softDelete action.
+    Livewire::actingAs($user)
+        ->test(InboxRow::class, ['testimonialId' => $row->id])
+        ->call('softDelete');
 
     Livewire::actingAs($user)
         ->test(InboxRow::class, ['testimonialId' => $row->id])

@@ -161,6 +161,8 @@
                                 <label class="text-xs text-gray-500" for="graph-granularity">Granularity</label>
                                 <select id="graph-granularity"
                                         wire:model.live="granularity"
+                                        wire:loading.attr="disabled"
+                                        wire:target="granularity"
                                         class="text-sm border-gray-300 rounded"
                                         data-testid="graph-granularity">
                                     <option value="day">Day</option>
@@ -171,6 +173,8 @@
                                 <label class="text-xs text-gray-500 ml-2" for="graph-range">Range</label>
                                 <select id="graph-range"
                                         wire:model.live="range"
+                                        wire:loading.attr="disabled"
+                                        wire:target="range"
                                         class="text-sm border-gray-300 rounded"
                                         data-testid="graph-range">
                                     <option value="7d">7d</option>
@@ -182,6 +186,8 @@
                                 <label class="text-xs text-gray-500 ml-2" for="graph-space">Space</label>
                                 <select id="graph-space"
                                         wire:model.live="spaceId"
+                                        wire:loading.attr="disabled"
+                                        wire:target="spaceId"
                                         class="text-sm border-gray-300 rounded"
                                         data-testid="graph-space">
                                     <option value="">All</option>
