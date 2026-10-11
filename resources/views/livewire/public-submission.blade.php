@@ -14,6 +14,14 @@
                         Thanks for taking the time to share.
                     </p>
                 </div>
+
+                <div class="text-center">
+                    <a href="{{ route('landing') }}"
+                       class="inline-flex items-center min-h-[44px] px-2 text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
+                       data-testid="back-home-link">
+                        Back to home
+                    </a>
+                </div>
             @else
                 {{-- Space header --}}
                 <header class="bg-white shadow-sm rounded-lg p-6 space-y-2"
@@ -35,6 +43,14 @@
                         <p class="text-sm">
                             This Space is not accepting responses right now.
                         </p>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{{ route('landing') }}"
+                           class="inline-flex items-center min-h-[44px] px-2 text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
+                           data-testid="back-home-link">
+                            Back to home
+                        </a>
                     </div>
                 @else
                     @if ($throttledMessage)
@@ -179,6 +195,14 @@
                                     data-testid="submit-button">
                                 Submit testimonial
                             </button>
+                        </div>
+
+                        <div class="text-center">
+                            <a href="{{ route('landing') }}"
+                               class="inline-flex items-center min-h-[44px] px-2 text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
+                               data-testid="back-home-link">
+                                Back to home
+                            </a>
                         </div>
                     </form>
                 @endif
