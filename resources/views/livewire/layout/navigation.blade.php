@@ -36,6 +36,9 @@ new class extends Component
                     <x-nav-link :href="route('spaces.index')" :active="request()->routeIs('spaces.*')" wire:navigate>
                         {{ __('Spaces') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('inbox.index')" :active="request()->routeIs('inbox.index')" wire:navigate>
+                        {{ __('Inbox') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -89,6 +92,9 @@ new class extends Component
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('spaces.index')" :active="request()->routeIs('spaces.*')" wire:navigate>
                 {{ __('Spaces') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('inbox.index')" :active="request()->routeIs('inbox.index')" wire:navigate>
+                {{ __('Inbox') }}
             </x-responsive-nav-link>
         </div>
 
