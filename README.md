@@ -124,8 +124,7 @@ No queue worker is needed. The app does not use `ShouldQueue`, `Queue::push`, `-
 
 Closed by this README: 6.5 (scheduler cron line), 6.7 (third-party limits marked UNVERIFIED), 6.8 (`CLOUDFLARE_HEADERS_ENABLED` warning), 8.19 (the README itself).
 
-- 8.21 — Fresh-clone end-to-end verification (fresh clone + `.env` + `php artisan migrate --seed` + `php artisan serve`, then the Step 8 "Done means" checks). Passed on 11 Oct 2026 (commit 0ad2f80): no README gaps found.
-- The OpenSpec change `docs/openspec/changes/build-testimonial-saas-v1/` is not archived yet.
+Closed after the README was first written: 8.21 (fresh-clone end-to-end verification: fresh clone + `.env` + `php artisan migrate --seed` + `php artisan serve`, then the Step 8 "Done means" checks) passed on 11 Oct 2026 (commit `0ad2f80`) with no README gaps found, and the OpenSpec change was verified (112/112 tasks) and archived on 12 Oct 2026 (commit `e7db5b0`). No task in `tasks.md` is open.
 
 Known limitation (by design): the dashboard's "open deletion requests" list is matched to the owner's **live** Spaces by `space_id`. Requests whose `space_id` points at a soft-deleted Space are not shown until the owner restores the Space. The data model calls this out so it is not rediscovered as a bug.
 
@@ -135,7 +134,7 @@ Out of scope by design: v1 ships the Free plan only (no Stripe, no Cashier, no `
 
 | Tool | Status | Where used |
 |---|---|---|
-| OpenSpec | USED | Change folder `docs/openspec/changes/build-testimonial-saas-v1/` (proposal, design, tasks, specs: auth, dashboard, embed, privacy, purge, seeders, spaces, testimonials) drove Steps 1-8. `/openspec-verify-change` ran on 11 Oct 2026: 107/112 tasks done at that time; the open ones were README and fresh-clone items. The change is not archived yet. |
+| OpenSpec | USED | Change `build-testimonial-saas-v1` (proposal, design, tasks, delta specs for auth, dashboard, embed, privacy, purge, seeders, spaces, testimonials) drove Steps 1-8. `/openspec-verify-change` ran on 11 Oct 2026 (107/112 tasks; the open ones were README and fresh-clone items) and again on 12 Oct 2026 (112/112 tasks, no issues reported). `/openspec-archive-change` archived it on 12 Oct 2026 (commit `e7db5b0`): its 42 requirements were copied into the main specs in `docs/openspec/specs/`, and the change moved to `docs/openspec/changes/archive/2026-10-12-build-testimonial-saas-v1/`. |
 | Skill: code-review | USED | A user-level "code-review" skill (lives outside the repo) ran twice on 11 Oct 2026, report-only (no code changes by the skill). The skill spawns two parallel sub-agents: a Standards reviewer (CLAUDE.md + a code-smell baseline) and a Spec reviewer (PRD, build order, data model, OpenSpec change). Scope: changes since the root commit `5639e10` (so the root commit's own files, mostly the Laravel/Breeze skeleton plus Steps 1-2, were not in the diff). Outcome: about 30 findings across both runs; most were false, cited the wrong rule, or were already-decided design choices; two small real fixes came out: removed the unused Laravel welcome view (`329d220`) and aligned the consent v1 wording in the docs with `config/consent.php` (`4f79c8d`). |
 | CLAUDE.md | USED | Present at repo root (commit `566f97d`); a fresh puku-cli session started in the repo root showed it loaded. |
 | Hook | NOT used | — |

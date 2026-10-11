@@ -37,7 +37,7 @@ PHP 8.5 is newer than Laravel 11's official range; every Pest test shows a harml
 - `C:\11111\final PRD.md` (v2.5)
 - `C:\11111\build order.md` (v2.6)
 - `C:\11111\data-model.md` (v2.5)
-- OpenSpec change `C:\11111\openspec\changes\build-testimonial-saas-v1\` (proposal, design, tasks, specs)
+- OpenSpec main specs `C:\11111\openspec\specs\` (auth, dashboard, embed, privacy, purge, seeders, spaces, testimonials); archived change `C:\11111\openspec\changes\archive\2026-10-12-build-testimonial-saas-v1\` (proposal, design, tasks, delta specs)
 
 Those originals live outside this repo; if copies exist under `docs/`, the originals win. Agents read only these; never `_bmad-output`. Any deviation from PRD / data-model / build order means updating all three documents in the same change (Hard Rule 15). If a detail is not in the documents, ask; do not guess.
 
