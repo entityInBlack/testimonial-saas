@@ -124,7 +124,7 @@ No queue worker is needed. The app does not use `ShouldQueue`, `Queue::push`, `-
 
 Closed by this README: 6.5 (scheduler cron line), 6.7 (third-party limits marked UNVERIFIED), 6.8 (`CLOUDFLARE_HEADERS_ENABLED` warning), 8.19 (the README itself).
 
-- 8.21 — Fresh-clone end-to-end verification (fresh clone + `.env` + `php artisan migrate --seed` + `php artisan serve`, then the Step 8 "Done means" checks). Not run yet.
+- 8.21 — Fresh-clone end-to-end verification (fresh clone + `.env` + `php artisan migrate --seed` + `php artisan serve`, then the Step 8 "Done means" checks). Passed on 11 Oct 2026 (commit 0ad2f80): no README gaps found.
 - The OpenSpec change `docs/openspec/changes/build-testimonial-saas-v1/` is not archived yet.
 
 Known minor docs drift: `config/purge.php` keys `batch_size` and `soft_warning_days` appear only in `tasks.md` 1.13, not in the PRD / data model / build order; the `deletion_requests` migration adds `updated_at` and two indexes (`idx_deletion_space_status`, `idx_deletion_email_status`) not listed in data-model §3.6. Not fixed in this change.
