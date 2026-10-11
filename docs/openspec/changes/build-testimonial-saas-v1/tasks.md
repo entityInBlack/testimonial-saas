@@ -12,7 +12,7 @@
 - [x] 1.6 Create migration `create_spaces_table` with `slug` unique, `public_id` char(12) unique, `theme` enum, `field_config` JSON, `deleted_at` soft delete, and indexes `unique(slug)`, `unique(public_id)`, `index(user_id, deleted_at)`; verify `SHOW INDEX FROM spaces` shows the three indexes (migration file written; full `SHOW INDEX` gated on `DB_PASSWORD`)
 - [x] 1.7 Create migration `create_testimonials_table` including `consented_at` + `consent_text_version` and the exact `is_public` STORED generated expression; verify via `information_schema.columns` that `extra` includes `STORED GENERATED` (HARD RULE 3: if MySQL refuses, stop and report the exact error — do not improvise) (migration file written with the exact expression; `IsPublicGeneratedColumnTest` written; full verification gated on `DB_PASSWORD`)
 - [x] 1.8 Create the `testimonials` indexes `idx_public`, `idx_space_live`, `idx_respondents` (built in the testimonials migration; built-order column-name `is_favorite`/`submitted_at` is not in the data-model — v1 has `is_wall_of_love` and `created_at`; indexes use the data-model columns; `SHOW INDEX` verification gated on `DB_PASSWORD`)
-- [x] 1.9 Create migration `create_embed_configurations_table` (1:1 with spaces via `uniq_embed_space`; column set reflects v1 data-model, not the build-order's "no display_options JSON" wording — `show_rating`/`show_social_handle`/`show_photo` are columns; `max_items` defaults to 50; verification gated on `DB_PASSWORD`)
+- [x] 1.9 Create migration `create_embed_configurations_table` (1:1 with spaces via `uniq_embed_space`; column set reflects v1 data-model, not the build-order's "no display_options JSON" wording — columns are `layout`, `dark_mode`, `animation_enabled`, `background_color`, `item_limit` (default 12, capped at 50 server-side) and `show_rating`; verification gated on `DB_PASSWORD`)
 - [x] 1.10 Create migration `create_deletion_requests_table` (kind enum `forget_now|withdraw_consent`, status `open|closed|cancelled`, `space_id` cascade, `testimonial_id` nullOnDelete; verification gated on `DB_PASSWORD`)
 - [x] 1.11 Create `config/limits.php` returning `['max_spaces' => 3, 'max_testimonials_per_space' => 100]` (data-model canonical key is `max_spaces`; no `max_spaces_per_user`; soft-warning thresholds deferred to Step 5)
 - [x] 1.12 Create `config/consent.php` returning `['current' => 'v1', 'texts' => ['v1' => 'I give permission...']]` (v1 is a plain non-empty string per data-model v2.5; ConsentConfigTest passes 3/3)
@@ -91,10 +91,10 @@
 - [x] 6.2 For every soft-deleted testimonial past retention, run the three-step order: close matching `deletion_requests` → delete photo file from `public` disk (ignore only "file not found"; any other error keeps the row for the next run) → `forceDelete()`; verify by running on a fixture
 - [x] 6.3 For every Space soft-deleted past retention, in order: (a) for each of its testimonials (live AND soft-deleted) run the three-step order; (b) `delete()` the `embed_configurations` row; (c) KEEP the `spaces` row as a tombstone; verify by running on a fixture
 - [x] 6.4 Write audit entries to the `purge` log channel with row IDs and counts only (no personal data); verify the channel is configured with `days => 14` explicit
-- [ ] 6.5 Document the scheduler cron line in the README (deferred to the Step 8 README pass)
+- [x] 6.5 Document the scheduler cron line in the README (deferred to the Step 8 README pass)
 - [x] 6.6 Implement a nightly `mysqldump`-style backup script and a tested restore runbook; verify locally
-- [ ] 6.7 Mark all third-party limits UNVERIFIED in the README (deferred to the Step 8 README pass)
-- [ ] 6.8 Keep the `CLOUDFLARE_HEADERS_ENABLED` switch off by default (verified: switch is off via `env(..., false)` in `config/trustedproxy.php`); add the README warning "verify ranges before deploy" (deferred to the Step 8 README pass)
+- [x] 6.7 Mark all third-party limits UNVERIFIED in the README (deferred to the Step 8 README pass)
+- [x] 6.8 Keep the `CLOUDFLARE_HEADERS_ENABLED` switch off by default (verified: switch is off via `env(..., false)` in `bootstrap/app.php`); add the README warning "verify ranges before deploy" (deferred to the Step 8 README pass)
 - [x] 6.9 Run all Step 6 verification: `php artisan purge:run` works locally on a soft-deleted > 30-day testimonial; Space > 30 days becomes a tombstone; restore from tab correctly fails for tombstones; backup + restore rehearsal works on a local DB
 
 ## 7. Embed builder + embed.js + public embed API + caching (Step 7)
@@ -137,7 +137,7 @@
 - [x] 8.16 Verify restore-at-cap works, WoL guard works, deletion-request form writes a row with `withTrashed` resolution
 - [x] 8.17 Verify cross-user authorization tests pass
 - [x] 8.18 Implement `public/demo-embed.html` as a plain HTML page that pastes the embed snippet for any Space and verify the page renders the embed
-- [ ] 8.19 Write the README with: local MySQL 8 setup, `.env.example` rewritten for MySQL, log mailer note, Intervention Image check (`gd_info()` writes WebP), scheduler cron line, `purge:run` documentation, mysqldump-style backup + restore rehearsal, all third-party limits UNVERIFIED, `CLOUDFLARE_HEADERS_ENABLED` warning, "Revisit before launch" list
+- [x] 8.19 Write the README with: local MySQL 8 setup, `.env.example` rewritten for MySQL, log mailer note, Intervention Image check (`gd_info()` writes WebP), scheduler cron line, `purge:run` documentation, mysqldump-style backup + restore rehearsal, all third-party limits UNVERIFIED, `CLOUDFLARE_HEADERS_ENABLED` warning, "Revisit before launch" list
 - [x] 8.20 Polish: empty states, 403/404/500, Livewire loading states
 - [ ] 8.21 Run all Step 8 verification: fresh clone + `.env` + `php artisan migrate --seed` + `php artisan serve` → Dev's `shiplog-reviews` is at the cap (100 LIVE), Dev's "Total customers" = 111, Dev's `shiplog-reviews` embed JSON has 21 items, Dev's `beta-testers` embed JSON has 12 items, dashboard shows the open deletion request, Forget-now on Sara's testimonial marks the request `acted`, `purge:run` runs cleanly, restore-at-cap works, WoL guard works, cross-user authorization tests pass
 
