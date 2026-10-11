@@ -234,6 +234,9 @@ Exactly **0 or 1 per Space**. The row is optional: with no saved row, code defau
 | `status` | enum | `open` \| `acted` |
 | `created_at` | timestamp | |
 | `acted_at` | timestamp null | set when the matching testimonial is forgotten |
+| `updated_at` | timestamp | from `timestamps()` in the migration |
+
+**Indexes:** `idx_deletion_space_status` on (`space_id`, `status`); `idx_deletion_email_status` on (`email`, `status`).
 
 Rows are never hard-deleted in MVP; only `status` changes to `acted`. The owner dashboard matches open requests to a Space by `space_id` — but **only** for **live** Spaces (the dashboard hides requests whose `space_id` points at a soft-deleted Space until the owner restores the Space; the README notes this).
 
@@ -483,7 +486,7 @@ The dashboard label "Total customers" is used in both documents.
 ## 9. Open items (resolve before or during implementation)
 
 - **9.1 Deleting an optional field.** ~~Dev deletes his custom "Job Title" field. What happens to Priya's answer, *VP Engineering*?~~ Out of scope: optional fields are fixed (`company_name`, `social_url`, `profile_photo`) and cannot be deleted per-Space. The owner toggles `enabled`/`required` in `field_config`; the column on `testimonials` is always present and the answer is simply blank when disabled. **CLOSED.**
-- **9.2 Purge policy for soft-deleted rows.** See PRD §9.1 — `purge:run`, nightly, `withoutOverlapping`, 30-day retention, photo-then-row, tombstone Spaces, `purge` log channel daily 14 days row-IDs-only (`'days' => 14` explicit in `config/logging.php`). **CLOSED** (see PRD §9.1).
+- **9.2 Purge policy for soft-deleted rows.** See PRD §9.1 — `purge:run`, nightly, `withoutOverlapping`, 30-day retention, photo-then-row, tombstone Spaces, `purge` log channel daily 14 days row-IDs-only (`'days' => 14` explicit in `config/logging.php`). Config keys in `config/purge.php`: `retention_days` (env `PURGE_RETENTION_DAYS`, default 30), `batch_size` (env `PURGE_BATCH_SIZE`, default 50; chunk size for the purge queries), `soft_warning_days` (env `PURGE_SOFT_WARNING_DAYS`, default 5; defined but not read by any code in v1). **CLOSED** (see PRD §9.1).
 - **9.3 Profile photo storage.** Disk: Laravel's **`public` disk** in MVP (served from `storage/app/public` via `php artisan storage:link`). Path: `photos/{random}.webp` (flat random). Pipeline: `getimagesize()` header check → > 4,000 px on either side hard-rejected → Intervention Image re-encode to webp ~400 px → DB write → if the DB insert fails, the file is deleted. **Forget** deletes the photo file immediately. The `public` disk is reachable by `embed.js` on third-party sites. **CLOSED.**
 - **9.4 Testimonial length validation.** Body max **2,000** chars (PRD §6). Address max **255** chars (column width). Text is trimmed; zero-width characters (U+200B-U+200D, U+FEFF) are stripped; Unicode normalization needs PHP `intl` and is skipped if `intl` is missing.
 
@@ -528,7 +531,7 @@ The dashboard label "Total customers" is used in both documents.
 | 13 | `consent_given boolean` + `consented_at` + `consent_text_version` (set on consent, not backfilled; kept on Withdraw consent) | `consent_given` only (rejected: cannot answer "what did they agree to, and when?"); `consented_at` only (rejected: missing wording version) |
 | 14 | Space soft delete; 30-day purge hard-deletes testimonials and photos; Space row stays as a tombstone so the slug stays claimed; deleted rows do not count toward limits; **Restore within 30 days**, blocked at the Space limit | Hard delete + FK cascade; soft delete + slug mangling + purge job; soft delete only, no purge (rejected: row accumulation); purge without Restore (rejected: silent data loss) |
 | 15 | `address` is a locked required column on `testimonials` (always-on, never public); same treatment as Name and Email | `address` as a `field_config` toggleable field (rejected: PRD requires it always-on-required); dropping address entirely (rejected: in the manager brief) |
-| 16 | `deletion_requests` table (email, space_slug, space_id nullable with nullOnDelete, testimonial_id nullable with nullOnDelete, status open\|acted, created_at, acted_at); owner-driven Forget flow; no automatic enforcement in MVP | Auto-enforce after N days (rejected: not legal advice, MVP is owner-driven); treating requests as soft-delete signals only (rejected: needs audit) |
+| 16 | `deletion_requests` table (email, space_slug, space_id nullable with nullOnDelete, testimonial_id nullable with nullOnDelete, status open\|acted, created_at, updated_at, acted_at; indexes on (space_id, status) and (email, status)); owner-driven Forget flow; no automatic enforcement in MVP | Auto-enforce after N days (rejected: not legal advice, MVP is owner-driven); treating requests as soft-delete signals only (rejected: needs audit) |
 | 17 | **No owner edit history** in MVP — edits overwrite original text and rating; no "edited" marker, no snapshot columns | Snapshot columns `original_testimonial` + `original_rating` (rejected for MVP, deferred to §10); full audit log table (rejected: over-engineered for MVP) |
 | 18 | Embed endpoint looks the Space up **including** soft-deleted rows; branch is decided in code after the row is found (404 / 200 empty / live scope) | Filter `deleted_at IS NULL` in the lookup (rejected: cannot distinguish 404 from 200 empty) |
 | 19 | **`purge` log channel** sets `'days' => 14` **explicitly** in `config/logging.php`. The `stripe` channel returns with v2 webhooks. | Rely on Laravel default (rejected: implicit default is not the contract) |

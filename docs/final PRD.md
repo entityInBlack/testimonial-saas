@@ -208,6 +208,9 @@ $maxPerSpace = config('limits.max_testimonials_per_space'); // 100
 | `status` | enum | `open` \| `acted` |
 | `created_at` | timestamp | |
 | `acted_at` | timestamp null | set when matching testimonial is forgotten |
+| `updated_at` | timestamp | from `timestamps()` in the migration |
+
+**Indexes:** `idx_deletion_space_status` on (`space_id`, `status`); `idx_deletion_email_status` on (`email`, `status`).
 
 Rows are never hard-deleted in MVP; only `status` changes to `acted`. The owner dashboard matches open requests to a Space by `space_id`. (See §13.2.)
 
@@ -426,7 +429,7 @@ Counters, lists, and the graph use **live Spaces only**.
 
 ### 9.1 Purge policy
 
-A scheduled command `purge:run` runs nightly with `withoutOverlapping`. The retention value comes from `config('purge.retention_days') = 30` (`config/purge.php`).
+A scheduled command `purge:run` runs nightly with `withoutOverlapping`. The retention value comes from `config('purge.retention_days') = 30` (`config/purge.php`). The same file also holds `batch_size` (env `PURGE_BATCH_SIZE`, default 50), the chunk size for the purge queries, and `soft_warning_days` (env `PURGE_SOFT_WARNING_DAYS`, default 5), which is defined but not read by any code in v1.
 
 Tombstone Spaces are **never** hard-deleted. The FK cascade on `embed_configurations.space_id` does not fire (the Space row is kept), so the purge job is **explicit**, not cascade-driven.
 

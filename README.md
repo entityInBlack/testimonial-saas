@@ -127,8 +127,6 @@ Closed by this README: 6.5 (scheduler cron line), 6.7 (third-party limits marked
 - 8.21 — Fresh-clone end-to-end verification (fresh clone + `.env` + `php artisan migrate --seed` + `php artisan serve`, then the Step 8 "Done means" checks). Passed on 11 Oct 2026 (commit 0ad2f80): no README gaps found.
 - The OpenSpec change `docs/openspec/changes/build-testimonial-saas-v1/` is not archived yet.
 
-Known minor docs drift: `config/purge.php` keys `batch_size` and `soft_warning_days` appear only in `tasks.md` 1.13, not in the PRD / data model / build order; the `deletion_requests` migration adds `updated_at` and two indexes (`idx_deletion_space_status`, `idx_deletion_email_status`) not listed in data-model §3.6. Not fixed in this change.
-
 Known limitation (by design): the dashboard's "open deletion requests" list is matched to the owner's **live** Spaces by `space_id`. Requests whose `space_id` points at a soft-deleted Space are not shown until the owner restores the Space. The data model calls this out so it is not rediscovered as a bug.
 
 Out of scope by design: v1 ships the Free plan only (no Stripe, no Cashier, no `/billing`, no `Plan` enum, no `STRIPE_*` env keys, no `stripe` log channel, no upgrade path). The PRD's own "Non-Goals / Out of Scope" list (§10 of `docs/final PRD.md`) is also not in v1: no social OAuth, no onboarding survey, no team workspaces, no custom domains, no video/NPS, no AI features, no user-defined custom fields, no i18n, no email verification (`MustVerifyEmail` is not used), no owner edit history, no CAPTCHA, no public Wall-of-Love standalone page, no CSV import/export, no approval workflows, no mobile apps, no social publishing, no timezone-corrected dashboard graphs (UTC bucketing only).

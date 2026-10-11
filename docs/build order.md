@@ -100,7 +100,7 @@ After migrate, verify via `information_schema.columns` that `extra` includes `ST
   ```
   Rule: never edit a published version. Add a new key to change wording. The Pest test asserts the version constant, not the text.
 - `config/logging.php`: add `purge` channel with `'days' => 14` **explicit**.
-- `config/purge.php` (new): `return ['retention_days' => 30];`. Single source of truth for the purge retention window. The `purge:run` command reads `config('purge.retention_days')` and nothing else.
+- `config/purge.php` (new): `retention_days` (env `PURGE_RETENTION_DAYS`, default 30), the single source of truth for the purge retention window; `batch_size` (env `PURGE_BATCH_SIZE`, default 50), the chunk size for the purge queries; `soft_warning_days` (env `PURGE_SOFT_WARNING_DAYS`, default 5), defined but not read by any code in v1. The purge job reads `retention_days` and `batch_size` only.
 - Trusted-proxy + `CLOUDFLARE_HEADERS_ENABLED` config switch (off by default).
 - `config/cors.php`: Laravel 11's default already allows `Access-Control-Allow-Origin: *` for `api/*` paths. No custom paths needed for v1 — the embed endpoint is at `/api/spaces/{public_id}/testimonials`. A Pest test sends an `Origin` header and asserts the response header.
 
@@ -231,7 +231,7 @@ Define the named limiters in **`AppServiceProvider::boot()`** (Laravel 11 has no
 ### Step 6 — Purge job + scheduler + backups + trusted-proxy config
 
 - Scheduled command `purge:run` runs nightly with `withoutOverlapping`.
-- **ONE config key:** `config('purge.retention_days') = 30`.
+- **Config keys:** `config('purge.retention_days') = 30` (retention window) and `config('purge.batch_size') = 50` (chunk size for the purge queries). `soft_warning_days` (default 5) is also in `config/purge.php` but is not read by any code in v1.
 - **Tombstone Spaces are never hard-deleted**, so the FK cascade on `embed_configurations.space_id` does **not** fire. The purge job is **explicit**, not cascade-driven.
 - Per testimonial soft-deleted past retention: **three-step order, fixed** — (a) UPDATE matching `deletion_requests` to `status='acted'`, `acted_at = now`; (b) delete photo file from the `public` disk (ignore only "file not found"; any other error keeps the row for the next run); (c) `forceDelete()` the row.
 - Per Space soft-deleted past retention, in order:
@@ -349,7 +349,7 @@ PRD §16 lists what ships in v2: Stripe + Pro plan, real domain + host with sche
 ## What changed in v2.6
 
 - **Step 1:** Auth throttles for forgot-password, reset-password, and register are now enforced **inside the Livewire component action** via `RateLimiter::tooManyAttempts` / `hit` (Breeze components, not POST routes). Two keys per IP and per email+IP. Limit: 5 attempts per 15 minutes. Named limiters in `AppServiceProvider::boot()`. `AuthThrottleTest` replaces `PasswordResetRateLimitTest`.
-- **Step 1:** New `config/purge.php` (`retention_days = 30`).
+- **Step 1:** New `config/purge.php` (`retention_days = 30`, `batch_size = 50`, `soft_warning_days = 5`; the last one is not read by any code in v1).
 - **Step 1:** `config/cors.php` default covers `api/*` paths with `Access-Control-Allow-Origin: *` (no custom paths).
 - **Step 1:** `public` disk + `php artisan storage:link` documented as the file storage for v1 (was "local disk" in v2.5; clarified per D37).
 - **Step 2:** Slug-check probe uses `Space::withTrashed()`, checks the reserved list, and trims the suffix to 60 chars (was `withTrashed` only).
