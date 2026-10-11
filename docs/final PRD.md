@@ -261,7 +261,7 @@ Route: `/s/{slug}` — no login required.
 Renders the space's theme, title, subtitle, and ask. Shows the three locked fields (Name, Email, Address) plus any of the 3 optional fields whose `enabled=true` in `field_config`. Required fields are enforced client- and server-side. Star rating input appears if `rating_enabled=true`.
 
 **Consent checkbox** (yes/no, default false):
-> "I give permission for this testimonial to be shared publicly."
+> "I give permission for this testimonial (my name, my message, and — if I provided them — my photo, social URL, and company) to be displayed publicly on the testimonial wall and embedded on third-party sites. I can withdraw consent and request deletion at any time."
 
 The wording lives in `config/consent.php` under a version key; see §6.1.
 

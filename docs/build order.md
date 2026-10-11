@@ -94,7 +94,7 @@ After migrate, verify via `information_schema.columns` that `extra` includes `ST
   return [
       'current' => 'v1',
       'texts' => [
-          'v1' => 'I give permission for this testimonial to be shared publicly.',
+          'v1' => 'I give permission for this testimonial (my name, my message, and — if I provided them — my photo, social URL, and company) to be displayed publicly on the testimonial wall and embedded on third-party sites. I can withdraw consent and request deletion at any time.',
       ],
   ];
   ```
