@@ -139,7 +139,7 @@
 - [x] 8.18 Implement `public/demo-embed.html` as a plain HTML page that pastes the embed snippet for any Space and verify the page renders the embed
 - [x] 8.19 Write the README with: local MySQL 8 setup, `.env.example` rewritten for MySQL, log mailer note, Intervention Image check (`gd_info()` writes WebP), scheduler cron line, `purge:run` documentation, mysqldump-style backup + restore rehearsal, all third-party limits UNVERIFIED, `CLOUDFLARE_HEADERS_ENABLED` warning, "Revisit before launch" list
 - [x] 8.20 Polish: empty states, 403/404/500, Livewire loading states
-- [ ] 8.21 Run all Step 8 verification: fresh clone + `.env` + `php artisan migrate --seed` + `php artisan serve` → Dev's `shiplog-reviews` is at the cap (100 LIVE), Dev's "Total customers" = 111, Dev's `shiplog-reviews` embed JSON has 21 items, Dev's `beta-testers` embed JSON has 12 items, dashboard shows the open deletion request, Forget-now on Sara's testimonial marks the request `acted`, `purge:run` runs cleanly, restore-at-cap works, WoL guard works, cross-user authorization tests pass
+- [x] 8.21 Run all Step 8 verification: fresh clone + `.env` + `php artisan migrate --seed` + `php artisan serve` → Dev's `shiplog-reviews` is at the cap (100 LIVE), Dev's "Total customers" = 111, Dev's `shiplog-reviews` embed JSON has 21 items, Dev's `beta-testers` embed JSON has 12 items, dashboard shows the open deletion request, Forget-now on Sara's testimonial marks the request `acted`, `purge:run` runs cleanly, restore-at-cap works, WoL guard works, cross-user authorization tests pass
 
 ## Workflow follow-up
 
