@@ -28,7 +28,7 @@
     $isAuthed = $isAuthed ?? auth()->check();
     $prefix = $testIdPrefix;
 @endphp
-<header class="bg-white border-b border-gray-200"
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200"
         data-testid="{{ $prefix }}header">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2">
         <x-brand-wordmark :context="'public'" :testId="$prefix.'brand'" class="shrink-0 text-sm sm:text-base" />
