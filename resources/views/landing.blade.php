@@ -7,51 +7,36 @@
 
         <title>{{ config('app.name', 'Testimonial SaaS') }}</title>
 
-        {{-- No remote fonts, no CDN. The app's Tailwind bundle and the
-             system font stack only. Build-order Hard Rule prohibits
-             adding new remote resources in Step 8. --}}
-        <style>
-            :root { color-scheme: light; }
-            html, body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-        </style>
+        {{-- Wave 0a — D1: no remote fonts. The Tailwind sans family is
+             the system stack (see tailwind.config.js), which is what the
+             landing/privacy pages already use. --}}
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased bg-gray-50">
-        <div class="min-h-screen flex flex-col">
-            {{-- Top nav --}}
-            <header class="bg-white border-b border-gray-200">
-                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-                    <a href="{{ route('landing') }}" class="text-base font-semibold text-gray-900" data-testid="landing-brand">
-                        {{ config('app.name', 'Testimonial SaaS') }}
-                    </a>
-                    <nav class="flex items-center gap-4 text-sm" data-testid="landing-nav">
-                        <a href="{{ route('privacy.show') }}" class="text-gray-600 hover:text-gray-900" data-testid="landing-privacy-link">Privacy</a>
-                        <a href="{{ route('privacy.request-deletion') }}" class="text-gray-600 hover:text-gray-900" data-testid="landing-request-deletion-link">Request deletion</a>
-                        @auth
-                            <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900" data-testid="landing-dashboard-link">Dashboard</a>
-                        @else
-                            <a href="{{ route('register') }}" class="inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700" data-testid="landing-register-link">Create account</a>
-                        @endauth
-                    </nav>
-                </div>
-            </header>
+    <body class="font-sans text-gray-900 antialiased">
+        <div class="min-h-screen flex flex-col bg-gray-100">
+            {{-- Shared public header (R3) with landing-prefixed testids so
+                 existing assertions (landing-brand, landing-nav,
+                 landing-privacy-link, landing-request-deletion-link,
+                 landing-dashboard-link, landing-register-link) keep their
+                 same-meaning elements. --}}
+            <x-public-header :testIdPrefix="'landing-'" :isAuthed="auth()->check()" />
 
             <main class="flex-1">
                 {{-- Hero --}}
                 <section class="bg-white">
-                    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 max-w-2xl" data-testid="landing-hero-title">
+                    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+                        <h1 class="text-2xl sm:text-4xl font-bold text-gray-900 max-w-2xl" data-testid="landing-hero-title">
                             Collect testimonials from your customers and show them on your site.
                         </h1>
                         <p class="mt-4 text-base sm:text-lg text-gray-700 max-w-2xl" data-testid="landing-hero-tagline">
                             Share a public link, collect responses with consent, curate the best ones in an Inbox, and embed a wall of love on any website.
                         </p>
-                        <div class="mt-6 flex flex-wrap items-center gap-3">
-                            <a href="{{ route('register') }}" class="inline-flex items-center px-5 py-2.5 rounded-md bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700" data-testid="landing-cta">
+                        <div class="mt-6 flex flex-wrap items-start gap-x-3 gap-y-2">
+                            <a href="{{ route('register') }}" class="inline-flex items-center min-h-[44px] px-5 py-2.5 rounded-md bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700" data-testid="landing-cta">
                                 Get started
                             </a>
-                            <a href="{{ route('privacy.show') }}" class="inline-flex items-center px-3 py-2 text-sm text-gray-700 hover:text-gray-900" data-testid="landing-privacy-cta">
+                            <a href="{{ route('privacy.show') }}" class="inline-flex items-center min-h-[44px] px-3 text-sm text-gray-700 hover:text-gray-900" data-testid="landing-privacy-cta">
                                 Read the privacy policy
                             </a>
                         </div>
@@ -59,10 +44,10 @@
                 </section>
 
                 {{-- Free plan info --}}
-                <section class="bg-gray-50">
+                <section class="bg-gray-100">
                     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         <div class="bg-white border border-gray-200 rounded-lg p-5" data-testid="landing-free-plan">
-                            <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Free plan</h2>
+                            <h2 class="text-sm font-semibold text-gray-700" data-testid="landing-free-plan-heading">Free plan</h2>
                             <p class="mt-2 text-base text-gray-900" data-testid="landing-free-plan-line">
                                 {{ $maxSpaces }} Spaces
                                 &middot;
@@ -106,15 +91,7 @@
                 </section>
             </main>
 
-            <footer class="bg-white border-t border-gray-200">
-                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-gray-600 flex flex-wrap items-center justify-between gap-2">
-                    <span data-testid="landing-footer-copy">{{ config('app.name', 'Testimonial SaaS') }}</span>
-                    <span class="flex items-center gap-3">
-                        <a href="{{ route('privacy.show') }}" class="hover:text-gray-900" data-testid="landing-footer-privacy">Privacy</a>
-                        <a href="{{ route('privacy.request-deletion') }}" class="hover:text-gray-900" data-testid="landing-footer-request-deletion">Request deletion</a>
-                    </span>
-                </div>
-            </footer>
+            <x-public-footer :testIdPrefix="'landing-footer-'" />
         </div>
     </body>
 </html>

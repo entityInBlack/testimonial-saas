@@ -21,11 +21,9 @@ new class extends Component
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <!-- Logo -->
+                <!-- Wordmark (D2; replaces the Laravel logo) -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" wire:navigate>
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    </a>
+                    <x-brand-wordmark :context="'app'" testId="app-nav-wordmark" class="text-base" />
                 </div>
 
                 <!-- Navigation Links -->
@@ -61,6 +59,9 @@ new class extends Component
                         <x-dropdown-link :href="route('profile')" wire:navigate>
                             {{ __('Profile') }}
                         </x-dropdown-link>
+
+                        <!-- Divider (R6 — #4) -->
+                        <div class="border-t border-gray-200" data-testid="nav-dropdown-divider"></div>
 
                         <!-- Authentication -->
                         <button wire:click="logout" class="w-full text-start">
@@ -109,6 +110,9 @@ new class extends Component
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
+
+                <!-- Divider (R6 — #4, mobile menu) -->
+                <div class="border-t border-gray-200 my-1" data-testid="nav-responsive-divider"></div>
 
                 <!-- Authentication -->
                 <button wire:click="logout" class="w-full text-start">
