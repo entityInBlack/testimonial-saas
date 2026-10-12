@@ -25,8 +25,7 @@
     'title' => '',
     'subtitle' => null,
 ])
-<header class="mb-6 sm:mb-8"
-        data-testid="page-header">
+<header {{ $attributes }} data-testid="page-header">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div class="min-w-0">
             <h1 class="text-xl font-semibold text-gray-900"
