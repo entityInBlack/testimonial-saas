@@ -1,10 +1,7 @@
 <div>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Spaces') }}
-            </h2>
-            <div class="flex items-center gap-3">
+        <x-page-header :title="__('Spaces')" data-testid="spaces-page-header">
+            <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('spaces.deleted') }}" wire:navigate
                    class="text-sm text-gray-600 hover:text-gray-900"
                    data-testid="deleted-tab-link">
@@ -12,17 +9,17 @@
                 </a>
                 @if (! $this->isAtCap)
                     <a href="{{ route('spaces.new') }}" wire:navigate
-                       class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700"
+                       class="inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
                        data-testid="new-space-link">
                         New Space
                     </a>
                 @endif
             </div>
-        </div>
+        </x-page-header>
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
 
             @if (session('status'))
                 <div class="bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded"
@@ -44,14 +41,31 @@
             <div class="bg-white shadow-sm rounded-lg divide-y divide-gray-100"
                  data-testid="space-list">
                 @forelse ($this->spaces as $space)
-                    <div class="flex items-center justify-between p-4" data-testid="space-row">
-                        <div>
-                            <div class="font-medium text-gray-900">{{ $space->title }}</div>
+                    <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+                         data-testid="space-row">
+                        <div class="min-w-0 space-y-1">
+                            <div class="font-medium text-gray-900">
+                                <a href="{{ route('inbox.index', ['spaceId' => $space->id]) }}"
+                                   wire:navigate
+                                   class="text-gray-900 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+                                   data-testid="space-row-title-link">
+                                    {{ $space->title }}
+                                </a>
+                            </div>
                             <div class="text-xs text-gray-500">
-                                /s/{{ $space->slug }} · public_id: {{ $space->public_id }}
+                                <a href="{{ url('/s/'.$space->slug) }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="text-gray-500 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded break-all"
+                                   data-testid="space-row-public-link">
+                                    /s/{{ $space->slug }}
+                                </a>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                public_id: {{ $space->public_id }}
                             </div>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex flex-wrap items-center gap-3">
                             <a href="{{ route('spaces.embed', ['space' => $space->id]) }}" wire:navigate
                                class="text-sm text-indigo-600 hover:text-indigo-900"
                                data-testid="embed-link">

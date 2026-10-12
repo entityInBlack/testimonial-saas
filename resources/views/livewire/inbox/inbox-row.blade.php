@@ -40,34 +40,29 @@
         @endif
 
         <div class="flex-1 min-w-0">
-            {{-- Header line --}}
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            {{-- Identity on top (name only) --}}
+            <div class="text-sm">
                 <span class="font-medium text-gray-900" data-testid="row-name">{{ $row->name }}</span>
-                <span class="text-gray-400">·</span>
-                <span class="text-gray-500" data-testid="row-email">{{ $row->email }}</span>
-                <span class="text-gray-400">·</span>
-                <span class="text-gray-500" data-testid="row-submitted-at">
-                    {{ optional($row->submitted_at)->format('Y-m-d H:i') }}
-                </span>
+            </div>
+
+            {{-- Meta: each item on its own line below sm, inline on sm+ --}}
+            <div class="mt-1 text-xs text-gray-500 flex flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0.5"
+                 data-testid="row-meta">
+                <span data-testid="row-email">{{ $row->email }}</span>
+                <span data-testid="row-submitted-at">{{ optional($row->submitted_at)->format('Y-m-d H:i') }}</span>
+                <span data-testid="row-address">{{ $row->address }}</span>
+                @if ($row->company_name)
+                    <span data-testid="row-company">{{ $row->company_name }}</span>
+                @endif
 
                 {{-- Hidden flag chip --}}
                 @if ($row->is_hidden)
-                    <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800"
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800"
                           data-testid="row-hidden-chip">
                         Hidden
                     </span>
                 @endif
             </div>
-
-            <div class="mt-1 text-xs text-gray-500" data-testid="row-address">
-                {{ $row->address }}
-            </div>
-
-            @if ($row->company_name)
-                <div class="mt-0.5 text-xs text-gray-500" data-testid="row-company">
-                    {{ $row->company_name }}
-                </div>
-            @endif
 
             @if ($row->rating)
                 <div class="mt-1 text-xs text-gray-700" data-testid="row-rating">
@@ -139,11 +134,11 @@
         </div>
 
         {{-- Actions (right column on >= sm, bottom row on mobile) --}}
-        <div class="flex flex-wrap sm:flex-col gap-1 sm:items-end w-full sm:w-auto"
+        <div class="flex flex-col gap-2 w-full sm:w-auto sm:items-end"
              data-testid="row-actions">
 
             @if ($showSoftDelete ?? true)
-                <div class="flex flex-wrap gap-1">
+                <div class="flex flex-wrap items-center gap-1">
                     <button type="button"
                             wire:click="toggleFavorite"
                             class="px-2 py-1 text-[11px] rounded border {{ $row->is_favorite ? 'bg-yellow-50 border-yellow-300 text-yellow-800' : 'border-gray-300 text-gray-700 hover:bg-gray-50' }}"
@@ -159,7 +154,7 @@
                             title="{{ $row->consent_given ? '' : 'Blocked — no consent on this row' }}"
                             class="px-2 py-1 text-[11px] rounded border {{ $row->is_wall_of_love ? 'bg-pink-50 border-pink-300 text-pink-800' : 'border-gray-300 text-gray-700 hover:bg-gray-50' }} {{ $row->consent_given ? '' : 'opacity-50 cursor-not-allowed' }}"
                             data-testid="row-walloflove">
-                        <span wire:loading.remove wire:target="toggleWallOfLove">{{ $row->is_wall_of_love ? 'WoL ✓' : 'Wall of Love' }}</span>
+                        <span wire:loading.remove wire:target="toggleWallOfLove">Wall of Love{{ $row->is_wall_of_love ? ' ✓' : '' }}</span>
                         <span wire:loading wire:target="toggleWallOfLove">Working…</span>
                     </button>
 
@@ -189,22 +184,23 @@
                             <span wire:loading wire:target="withdrawConsent">Working…</span>
                         </button>
                     @endif
-
-                    <button type="button"
-                            wire:click="softDelete"
-                            wire:loading.attr="disabled"
-                            wire:target="softDelete"
-                            wire:confirm="Move '{{ $row->name }}' to Trash? You can restore it from the Trash tab within {{ (int) config('purge.retention_days', 30) }} days."
-                            class="px-2 py-1 text-[11px] rounded border border-red-200 text-red-700 hover:bg-red-50"
-                            data-testid="row-delete">
-                        <span wire:loading.remove wire:target="softDelete">Delete</span>
-                        <span wire:loading wire:target="softDelete">Working…</span>
-                    </button>
                 </div>
+
+                {{-- Delete sits visually apart from the rest --}}
+                <button type="button"
+                        wire:click="softDelete"
+                        wire:loading.attr="disabled"
+                        wire:target="softDelete"
+                        wire:confirm="Move '{{ $row->name }}' to Trash? You can restore it from the Trash tab within {{ (int) config('purge.retention_days', 30) }} days."
+                        class="self-start sm:self-end inline-flex items-center px-3 py-1.5 text-[11px] rounded border border-red-200 text-red-700 hover:bg-red-50"
+                        data-testid="row-delete">
+                    <span wire:loading.remove wire:target="softDelete">Delete</span>
+                    <span wire:loading wire:target="softDelete">Working…</span>
+                </button>
             @endif
 
             @if (($showRestore ?? false) && $row->deleted_at)
-                <div class="flex flex-wrap gap-1 mt-1">
+                <div class="flex flex-wrap items-center gap-1">
                     <button type="button"
                             wire:click="restore"
                             wire:loading.attr="disabled"

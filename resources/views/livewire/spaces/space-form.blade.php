@@ -1,12 +1,13 @@
 <div>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ $spaceId ? __('Edit Space') : __('New Space') }}
-        </h2>
+        <x-page-header
+            :title="$spaceId ? __('Edit Space') : __('New Space')"
+            data-testid="space-form-page-header"
+        />
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-4">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
 
             {{-- Cap warning --}}
             @if ($this->showWarningBanner)

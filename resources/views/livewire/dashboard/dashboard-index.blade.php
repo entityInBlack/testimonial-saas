@@ -1,13 +1,13 @@
 <div>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight"
-            data-testid="dashboard-title">
-            {{ __('Dashboard') }}
-        </h2>
+        <x-page-header
+            :title="__('Dashboard')"
+            data-testid="dashboard-page-header"
+        />
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
             {{-- ============================================================== --}}
             {{-- Free-plan info note (above the counters, below the title)     --}}
@@ -50,7 +50,7 @@
                          data-testid="empty-no-spaces">
                         <p class="text-gray-700 mb-4">Create your first Space</p>
                         <a href="{{ route('spaces.new') }}" wire:navigate
-                           class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded hover:bg-indigo-700"
+                           class="inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-sm text-white hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
                            data-testid="empty-create-space-link">
                             {{ __('New Space') }}
                         </a>
@@ -59,10 +59,10 @@
                     {{-- ============================================================ --}}
                     {{-- Counter cards                                              --}}
                     {{-- ============================================================ --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+                    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4"
                          data-testid="counter-grid">
                         <div class="bg-white shadow-sm rounded-lg p-4" data-testid="counter-total-testimonials">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Total testimonials</div>
+                            <div class="text-xs text-gray-500">Total testimonials</div>
                             <div class="text-2xl font-semibold text-gray-900 mt-1"
                                  data-testid="counter-total-testimonials-value">
                                 {{ number_format($this->totalTestimonials) }}
@@ -70,7 +70,7 @@
                         </div>
 
                         <div class="bg-white shadow-sm rounded-lg p-4" data-testid="counter-total-customers">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Total customers</div>
+                            <div class="text-xs text-gray-500">Total customers</div>
                             <div class="text-2xl font-semibold text-gray-900 mt-1"
                                  data-testid="counter-total-customers-value">
                                 {{ number_format($this->totalCustomers) }}
@@ -78,7 +78,7 @@
                         </div>
 
                         <div class="bg-white shadow-sm rounded-lg p-4" data-testid="counter-spaces-used">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Spaces used</div>
+                            <div class="text-xs text-gray-500">Spaces used</div>
                             <div class="text-2xl font-semibold text-gray-900 mt-1"
                                  data-testid="counter-spaces-used-value">
                                 {{ $this->spacesUsed }} of {{ $this->maxSpaces }}
@@ -86,7 +86,7 @@
                         </div>
 
                         <div class="bg-white shadow-sm rounded-lg p-4" data-testid="counter-average-rating">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Average rating</div>
+                            <div class="text-xs text-gray-500">Average rating</div>
                             <div class="text-2xl font-semibold text-gray-900 mt-1"
                                  data-testid="counter-average-rating-value">
                                 @if ($this->averageRating === null)
@@ -98,7 +98,7 @@
                         </div>
 
                         <div class="bg-white shadow-sm rounded-lg p-4" data-testid="counter-open-deletion-requests">
-                            <div class="text-xs text-gray-500 uppercase tracking-wide">Open deletion requests</div>
+                            <div class="text-xs text-gray-500">Open deletion requests</div>
                             <div class="text-2xl font-semibold text-gray-900 mt-1"
                                  data-testid="counter-open-deletion-requests-value">
                                 {{ number_format($this->openDeletionRequestsCount) }}
@@ -157,44 +157,62 @@
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                             <h3 class="text-sm font-semibold text-gray-800">Submissions over time</h3>
 
-                            <div class="flex flex-wrap items-center gap-2" data-testid="graph-controls">
-                                <label class="text-xs text-gray-500" for="graph-granularity">Granularity</label>
-                                <select id="graph-granularity"
-                                        wire:model.live="granularity"
-                                        wire:loading.attr="disabled"
-                                        wire:target="granularity"
-                                        class="text-sm border-gray-300 rounded"
-                                        data-testid="graph-granularity">
-                                    <option value="day">Day</option>
-                                    <option value="week">Week</option>
-                                    <option value="month">Month</option>
-                                </select>
+                            <div class="flex flex-wrap items-start gap-3" data-testid="graph-controls">
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-xs text-gray-500" for="graph-granularity">Granularity</label>
+                                    <div class="flex items-center gap-2">
+                                        <select id="graph-granularity"
+                                                wire:model.live="granularity"
+                                                wire:loading.attr="disabled"
+                                                wire:target="granularity"
+                                                class="text-sm border-gray-300 rounded"
+                                                data-testid="graph-granularity">
+                                            <option value="day">Day</option>
+                                            <option value="week">Week</option>
+                                            <option value="month">Month</option>
+                                        </select>
+                                        <span class="text-xs text-gray-500"
+                                              wire:loading
+                                              wire:target="granularity"
+                                              data-testid="graph-granularity-loading">Loading…</span>
+                                    </div>
+                                </div>
 
-                                <label class="text-xs text-gray-500 ml-2" for="graph-range">Range</label>
-                                <select id="graph-range"
-                                        wire:model.live="range"
-                                        wire:loading.attr="disabled"
-                                        wire:target="range"
-                                        class="text-sm border-gray-300 rounded"
-                                        data-testid="graph-range">
-                                    <option value="7d">7d</option>
-                                    <option value="30d">30d</option>
-                                    <option value="90d">90d</option>
-                                    <option value="all">All time</option>
-                                </select>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-xs text-gray-500" for="graph-range">Range</label>
+                                    <div class="flex items-center gap-2">
+                                        <select id="graph-range"
+                                                wire:model.live="range"
+                                                wire:loading.attr="disabled"
+                                                wire:target="range"
+                                                class="text-sm border-gray-300 rounded"
+                                                data-testid="graph-range">
+                                            <option value="7d">7d</option>
+                                            <option value="30d">30d</option>
+                                            <option value="90d">90d</option>
+                                            <option value="all">All time</option>
+                                        </select>
+                                        <span class="text-xs text-gray-500"
+                                              wire:loading
+                                              wire:target="range"
+                                              data-testid="graph-range-loading">Loading…</span>
+                                    </div>
+                                </div>
 
-                                <label class="text-xs text-gray-500 ml-2" for="graph-space">Space</label>
-                                <select id="graph-space"
-                                        wire:model.live="spaceId"
-                                        wire:loading.attr="disabled"
-                                        wire:target="spaceId"
-                                        class="text-sm border-gray-300 rounded"
-                                        data-testid="graph-space">
-                                    <option value="">All</option>
-                                    @foreach ($this->liveSpaces as $space)
-                                        <option value="{{ $space->id }}">{{ $space->title }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-xs text-gray-500" for="graph-space">Space</label>
+                                    <select id="graph-space"
+                                            wire:model.live="spaceId"
+                                            wire:loading.attr="disabled"
+                                            wire:target="spaceId"
+                                            class="text-sm border-gray-300 rounded"
+                                            data-testid="graph-space">
+                                        <option value="">All</option>
+                                        @foreach ($this->liveSpaces as $space)
+                                            <option value="{{ $space->id }}">{{ $space->title }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                         </div>
 

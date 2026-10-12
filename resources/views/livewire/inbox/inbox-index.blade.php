@@ -1,14 +1,13 @@
 <div>
     <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight" data-testid="inbox-title">
-                {{ __('Inbox') }}
-            </h2>
-        </div>
+        <x-page-header
+            :title="__('Inbox')"
+            data-testid="inbox-page-header"
+        />
     </x-slot>
 
     <div class="py-6 sm:py-8">
-        <div class="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
 
             @if (session('status'))
                 <div class="bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded text-sm"
@@ -31,10 +30,11 @@
                 </label>
                 <select id="inbox-space"
                         wire:model.live="spaceId"
-                        class="w-full sm:max-w-md rounded-md border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        class="w-full sm:max-w-md rounded-md border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        data-testid="inbox-space-select">
                     <option value="">— Select a Space —</option>
                     @foreach ($this->spaces as $space)
-                        <option value="{{ $space->id }}">{{ $space->title }} ({{ '/s/'.$space->slug }})</option>
+                        <option value="{{ $space->id }}">{{ $space->title }}</option>
                     @endforeach
                 </select>
                 @if ($this->spaces->isEmpty())

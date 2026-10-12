@@ -375,9 +375,9 @@ test('Part 3 (follow-up 3): rendered HTML does not contain alpine:init or _x_dat
         ->not->toContain('_x_dataStack')
         ->not->toContain('@assets')
         // The CDN script is no longer a literal <script src=...chart.js...> tag.
-        // We match the opening of a script tag specifically so Livewire's
-        // wire:snapshot (which contains the data-chartjs-src value for
-        // round-tripping) is not flagged.
+        // We match the opening of a script tag specifically so the
+        // data-chartjs-src attribute on the wrapper (which also
+        // contains the chart.js URL) is not flagged.
         ->not->toContain('<script src="https://cdn.jsdelivr.net/npm/chart.js');
 });
 
