@@ -1,8 +1,6 @@
 <?php
 
-use App\Livewire\Spaces\SpaceIndex;
 use App\Models\User;
-use Livewire\Livewire;
 
 /**
  * Wave 1, Task B (B2): "New Space" follows D3.
@@ -16,9 +14,12 @@ use Livewire\Livewire;
 test('the "New Space" link is an indigo D3 primary button (no uppercase)', function () {
     $user = User::factory()->create();
 
-    $html = (string) Livewire::actingAs($user)
-        ->test(SpaceIndex::class)
-        ->html();
+    // A GET renders the full page (layout + header slot);
+    // Livewire::test()->html() renders only the component view.
+    $html = $this->actingAs($user)
+        ->get('/spaces')
+        ->assertOk()
+        ->getContent();
 
     // Pull out the new-space-link element and check its class.
     preg_match('#<a[^>]*data-testid="new-space-link"[^>]*>#', $html, $m);

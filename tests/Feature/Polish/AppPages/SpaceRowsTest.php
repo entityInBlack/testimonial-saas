@@ -37,7 +37,7 @@ test('Spaces row: title links to that Space\'s Inbox, public URL is a new-tab li
     // Title link → Inbox for that Space.
     expect($html)->toContain('data-testid="space-row-title-link"')
         ->and($html)->toContain('href="'.$expectedInboxHref.'"')
-        ->and($html)->toContain('>'.$space->title.'</a>');
+        ->and($html)->toMatch('/<a[^>]*data-testid="space-row-title-link"[^>]*>\s*'.preg_quote(e($space->title), '/').'\s*<\/a>/');
 
     // Public URL link → /s/{slug}, opens in a new tab, rel has noopener.
     $publicHref = url('/s/'.$space->slug);
