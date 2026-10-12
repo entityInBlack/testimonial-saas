@@ -1,19 +1,16 @@
 <div>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Deleted Spaces') }}
-            </h2>
+        <x-page-header :title="__('Deleted Spaces')" data-testid="space-deleted-page-header">
             <a href="{{ route('spaces.index') }}" wire:navigate
                class="text-sm text-gray-600 hover:text-gray-900"
                data-testid="back-to-spaces">
                 Back to Spaces
             </a>
-        </div>
+        </x-page-header>
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-4">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
 
             @if (session('status'))
                 <div class="bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded"
