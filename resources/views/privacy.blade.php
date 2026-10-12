@@ -14,17 +14,8 @@
     </head>
     <body class="font-sans text-gray-900 antialiased bg-gray-100">
         <div class="min-h-screen flex flex-col">
-            {{-- Shared public header (R3) with privacy-prefixed testids.
-                 The legacy "Home" link that the privacy page had at this
-                 spot is preserved as `privacy-home-link` immediately below
-                 the header, on the same-meaning element. --}}
+            {{-- Shared public header (R3) with privacy-prefixed testids. --}}
             <x-public-header :testIdPrefix="'privacy-'" :isAuthed="auth()->check()" />
-
-            <div class="bg-white border-b border-gray-200">
-                <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-sm text-gray-600">
-                    <a href="{{ route('landing') }}" class="hover:text-gray-900" data-testid="privacy-home-link">Home</a>
-                </div>
-            </div>
 
             <main class="flex-1">
                 <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8"
@@ -103,20 +94,8 @@
                 </article>
             </main>
 
-            {{-- Footer: privacy-specific (the original page had a single Home
-                 link). We keep `privacy-footer-home` on the same-meaning
-                 element and use the shared wordmark + Privacy + Request
-                 deletion set in addition, so this page joins the same shell
-                 as landing and the guest-layout pages. --}}
-            <footer class="bg-white border-t border-gray-200">
-                <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-gray-600 flex flex-wrap items-center justify-between gap-2">
-                    <a href="{{ route('landing') }}" class="hover:text-gray-900" data-testid="privacy-footer-home">Home</a>
-                    <span class="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
-                        <a href="{{ route('privacy.show') }}" class="hover:text-gray-900" data-testid="privacy-footer-privacy">Privacy</a>
-                        <a href="{{ route('privacy.request-deletion') }}" class="hover:text-gray-900" data-testid="privacy-footer-request-deletion">Request deletion</a>
-                    </span>
-                </div>
-            </footer>
+            {{-- Wave 0b — use the shared public footer (F5). --}}
+            <x-public-footer :testIdPrefix="'privacy-footer-'" />
         </div>
     </body>
 </html>

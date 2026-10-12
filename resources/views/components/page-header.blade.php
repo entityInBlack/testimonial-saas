@@ -17,7 +17,14 @@
         >=sm:   one row — title (+ optional subtitle) on the left,
                 actions on the right, with `sm:items-end` so a longer
                 subtitle aligns visually.
+
+    Wave 0b — declare props (F1) so $title and $subtitle do not leak
+    onto the rendered <header> as stray HTML attributes.
 --}}
+@props([
+    'title' => '',
+    'subtitle' => null,
+])
 <header class="mb-6 sm:mb-8"
         data-testid="page-header">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">

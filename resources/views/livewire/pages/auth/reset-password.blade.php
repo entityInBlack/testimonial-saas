@@ -106,6 +106,9 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
+    <h1 class="text-2xl font-semibold text-gray-900 mb-4"
+        data-testid="auth-heading">{{ __('Set a new password') }}</h1>
+
     <form wire:submit="resetPassword">
         <!-- Email Address -->
         <div>
@@ -136,8 +139,8 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
+            <x-primary-button class="w-full sm:w-auto">
+                {{ __('Reset password') }}
             </x-primary-button>
         </div>
     </form>

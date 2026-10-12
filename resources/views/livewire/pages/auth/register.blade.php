@@ -77,6 +77,9 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
+    <h1 class="text-2xl font-semibold text-gray-900 mb-4"
+        data-testid="auth-heading">{{ __('Create account') }}</h1>
+
     <form wire:submit="register">
         <!-- Name -->
         <div>
@@ -115,13 +118,16 @@ new #[Layout('layouts.guest')] class extends Component
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}" wire:navigate>
+        <div class="flex flex-col gap-3 mt-4 sm:flex-row sm:items-center sm:justify-between">
+            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+               href="{{ route('login') }}"
+               data-testid="register-login-link"
+               wire:navigate>
                 {{ __('Already registered?') }}
             </a>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
+            <x-primary-button class="w-full sm:w-auto">
+                {{ __('Create account') }}
             </x-primary-button>
         </div>
     </form>

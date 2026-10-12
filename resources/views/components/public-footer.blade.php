@@ -6,9 +6,15 @@
         - <prefix>copy            (the wordmark text in the footer)
         - <prefix>privacy
         - <prefix>request-deletion
+
+    Wave 0b — declare props (F1) so $testIdPrefix does not leak onto the
+    rendered <footer> as a stray HTML attribute.
 --}}
+@props([
+    'testIdPrefix' => 'public-footer-',
+])
 @php
-    $prefix = $testIdPrefix ?? 'public-footer-';
+    $prefix = $testIdPrefix;
 @endphp
 <footer class="bg-white border-t border-gray-200"
         data-testid="{{ $prefix }}">

@@ -36,7 +36,7 @@
                             <a href="{{ route('register') }}" class="inline-flex items-center min-h-[44px] px-5 py-2.5 rounded-md bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700" data-testid="landing-cta">
                                 Get started
                             </a>
-                            <a href="{{ route('privacy.show') }}" class="inline-flex items-center min-h-[44px] px-3 text-sm text-gray-700 hover:text-gray-900" data-testid="landing-privacy-cta">
+                            <a href="{{ route('privacy.show') }}" class="inline-flex items-center min-h-[44px] py-2.5 text-sm text-gray-700 hover:text-gray-900" data-testid="landing-privacy-cta">
                                 Read the privacy policy
                             </a>
                         </div>

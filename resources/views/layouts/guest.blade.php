@@ -57,7 +57,8 @@
                     @if ($isCardless)
                         {{ $slot }}
                     @else
-                        <div class="bg-white shadow-sm rounded-lg p-6 sm:p-8">
+                        <div class="bg-white shadow-sm rounded-lg p-6 sm:p-8"
+                             data-testid="guest-card">
                             {{ $slot }}
                         </div>
                     @endif

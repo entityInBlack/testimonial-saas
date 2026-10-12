@@ -75,6 +75,9 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
+    <h1 class="text-2xl font-semibold text-gray-900 mb-4"
+        data-testid="auth-heading">{{ __('Forgot your password') }}</h1>
+
     <div class="mb-4 text-sm text-gray-600">
         {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
     </div>
@@ -91,8 +94,8 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
+            <x-primary-button class="w-full sm:w-auto">
+                {{ __('Email password reset link') }}
             </x-primary-button>
         </div>
     </form>

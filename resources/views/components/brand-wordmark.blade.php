@@ -7,11 +7,17 @@
     All callers share a single data-testid ("brand-wordmark") so a global
     test can pin the wordmark; pages that need a per-page test id can
     pass $testId to override.
+
+    Wave 0b — declare props (F1) so $context, $testId (and any other
+    attribute-style props on the parent) do not leak onto the rendered
+    <a> as stray HTML attributes.
 --}}
+@props([
+    'context' => 'public',
+    'testId' => 'brand-wordmark',
+])
 @php
-    $context = $context ?? 'public';
     $href = $context === 'app' ? route('dashboard') : route('landing');
-    $testId = $testId ?? 'brand-wordmark';
 @endphp
 <a href="{{ $href }}"
    {{ $attributes->merge(['class' => 'text-base font-semibold text-gray-900 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-sm']) }}

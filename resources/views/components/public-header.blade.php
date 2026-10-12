@@ -16,10 +16,17 @@
         - <prefix>dashboard-link   (logged-in only)
         - <prefix>register-link   (guest only)
         - <prefix>login-link       (guest only)
+
+    Wave 0b — declare props (F1) so $isAuthed and $testIdPrefix do not
+    leak onto the rendered <header> as stray HTML attributes.
 --}}
+@props([
+    'isAuthed' => null,
+    'testIdPrefix' => 'public-header-',
+])
 @php
     $isAuthed = $isAuthed ?? auth()->check();
-    $prefix = $testIdPrefix ?? 'public-header-';
+    $prefix = $testIdPrefix;
 @endphp
 <header class="bg-white border-b border-gray-200"
         data-testid="{{ $prefix }}header">
