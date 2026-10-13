@@ -209,13 +209,19 @@
       header.appendChild(img);
     }
 
+    // Name + company sit in one block beside the photo, so the
+    // header reads as a single identity row (photo | name, company).
+    // ts-name-block uses display:flex;flex-direction:column so the
+    // company line stacks directly under the name.
+    var nameBlock = document.createElement('div');
+    nameBlock.className = 'ts-name-block';
     var nameNode = el('div', { cls: 'ts-name', text: item.name || '' });
-    header.appendChild(nameNode);
-    card.appendChild(header);
-
+    nameBlock.appendChild(nameNode);
     if (item.company_name) {
-      card.appendChild(el('div', { cls: 'ts-company', text: item.company_name }));
+      nameBlock.appendChild(el('div', { cls: 'ts-company', text: item.company_name }));
     }
+    header.appendChild(nameBlock);
+    card.appendChild(header);
 
     var body = el('p', { cls: 'ts-body', text: item.testimonial || '' });
     card.appendChild(body);
@@ -267,7 +273,7 @@
     css += ':host{all:initial;display:block;background:' + bg + ';';
     css += 'color:' + (dark ? '#f3f4f6' : '#111827') + ';';
     css += 'padding:12px;border-radius:8px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;}';
-    css += '.ts-list{display:flex;gap:12px;list-style:none;margin:0;padding:0;}';
+    css += '.ts-list{display:flex;gap:16px;list-style:none;margin:0;padding:0;}';
     // masonry uses CSS multi-column. The column count is driven
     // by the widget's OWN width (set as data-ts-width on :host by
     // applyWidthBucket + ResizeObserver) — NOT by the host
@@ -275,34 +281,44 @@
     // widget still renders 1 column; on a wide screen it gets up
     // to 3. The default bucket is xs so a host that fires before
     // applyWidthBucket can paint (rare) still starts in 1 column.
-    css += '.ts-list.ts-masonry{display:block;column-count:1;column-gap:12px;}';
+    css += '.ts-list.ts-masonry{display:block;column-count:1;column-gap:16px;}';
     css += ':host([data-ts-width="sm"]) .ts-list.ts-masonry{column-count:2;}';
     css += ':host([data-ts-width="md"]) .ts-list.ts-masonry{column-count:2;}';
     css += ':host([data-ts-width="lg"]) .ts-list.ts-masonry{column-count:3;}';
-    css += '.ts-list.ts-masonry .ts-card{break-inside:avoid;margin:0 0 12px 0;display:block;}';
+    css += '.ts-list.ts-masonry .ts-card{break-inside:avoid;margin:0 0 16px 0;display:block;}';
     // carousel: horizontal scroller with snap.
-    css += '.ts-list.ts-carousel{overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}';
+    css += '.ts-list.ts-carousel{overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;}';
     css += '.ts-list.ts-carousel .ts-card{flex:0 0 280px;scroll-snap-align:start;display:flex;flex-direction:column;}';
     css += '.ts-nav{display:flex;gap:6px;margin:0 0 8px 0;}';
-    css += '.ts-nav button{font:inherit;cursor:pointer;padding:4px 10px;border:1px solid currentColor;border-radius:4px;background:transparent;color:inherit;}';
+    css += '.ts-nav button{font:inherit;cursor:pointer;padding:8px 16px;border:1px solid currentColor;border-radius:9999px;background:transparent;color:inherit;min-height:44px;min-width:44px;font-size:14px;}';
+    css += '.ts-nav button:focus-visible{outline:2px solid currentColor;outline-offset:2px;}';
     css += '.ts-card{background:' + (dark ? '#1f2937' : '#ffffff') + ';';
     css += 'color:' + (dark ? '#f3f4f6' : '#111827') + ';';
     css += 'border:1px solid ' + (dark ? '#374151' : '#e5e7eb') + ';';
-    css += 'border-radius:8px;padding:12px;box-sizing:border-box;}';
-    css += '.ts-header{display:flex;align-items:center;gap:8px;}';
-    css += '.ts-photo{width:32px;height:32px;border-radius:50%;object-fit:cover;flex:0 0 32px;}';
-    css += '.ts-name{font-weight:600;font-size:14px;}';
-    css += '.ts-company{font-size:12px;opacity:0.75;}';
-    css += '.ts-body{margin:8px 0 0 0;font-size:14px;line-height:1.45;word-wrap:break-word;}';
-    css += '.ts-rating{margin-top:6px;font-size:14px;letter-spacing:1px;}';
-    css += '.ts-date{display:block;margin-top:6px;font-size:11px;opacity:0.6;}';
-    css += '.ts-social{display:inline-block;margin-top:6px;font-size:12px;color:inherit;word-break:break-all;}';
+    css += 'border-radius:16px;padding:20px;box-sizing:border-box;';
+    css += 'box-shadow:' + (dark ? '0 1px 2px rgba(0,0,0,.3)' : '0 1px 2px rgba(17,24,39,.06)') + ';}';
+    css += ':host([data-ts-width="xs"]) .ts-card{padding:16px;}';
+    css += '.ts-header{display:flex;align-items:center;gap:10px;}';
+    css += '.ts-photo{width:40px;height:40px;border-radius:50%;object-fit:cover;flex:0 0 40px;}';
+    css += '.ts-name-block{display:flex;flex-direction:column;min-width:0;}';
+    css += '.ts-name{font-weight:600;font-size:15px;color:' + (dark ? '#f3f4f6' : '#111827') + ';}';
+    css += '.ts-company{font-size:13px;opacity:0.75;}';
+    css += '.ts-body{margin:10px 0 0 0;font-size:15px;line-height:1.6;color:' + (dark ? '#f3f4f6' : '#374151') + ';word-wrap:break-word;overflow-wrap:anywhere;}';
+    css += '.ts-rating{margin-top:8px;font-size:16px;letter-spacing:2px;}';
+    css += '.ts-star{color:' + (dark ? '#4b5563' : '#d1d5db') + ';}';
+    css += '.ts-star-on{color:#f59e0b;}';
+    css += '.ts-date{display:block;margin-top:8px;font-size:12px;opacity:0.65;color:' + (dark ? '#f3f4f6' : '#111827') + ';}';
+    css += '.ts-social{display:inline-block;margin-top:8px;font-size:13px;color:' + (dark ? '#a5b4fc' : '#4338ca') + ';text-decoration:underline;word-break:break-all;}';
+    css += '.ts-social:focus-visible{outline:2px solid ' + (dark ? '#a5b4fc' : '#4338ca') + ';outline-offset:2px;}';
     if (anim) {
-      css += '.ts-card{animation:ts-fade 280ms ease-out both;}';
-      css += '@keyframes ts-fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}';
+      css += '.ts-card{animation:ts-fade 280ms ease-out backwards;}';
+      css += '@keyframes ts-fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}';
     } else {
       css += '.ts-card{animation:none;}';
     }
+    // Respect the visitor's reduced-motion preference regardless of
+    // the owner's animation_enabled setting.
+    css += '@media (prefers-reduced-motion: reduce){.ts-card{animation:none !important;}}';
     return css;
   }
 
