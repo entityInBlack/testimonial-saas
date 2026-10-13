@@ -28,7 +28,7 @@
 <header {{ $attributes }} data-testid="page-header">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div class="min-w-0">
-            <h1 class="text-xl font-semibold text-gray-900"
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 break-words"
                 data-testid="page-header-title">{{ $title }}</h1>
             @isset($subtitle)
                 <p class="mt-1 text-sm text-gray-600"

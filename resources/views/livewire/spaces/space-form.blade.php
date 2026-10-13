@@ -11,9 +11,9 @@
 
             {{-- Cap warning --}}
             @if ($this->showWarningBanner)
-                <div class="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded"
+                <div class="rounded-xl bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 text-sm"
                      data-testid="cap-warning">
-                    <p class="text-sm">
+                    <p>
                         You're using {{ $this->liveSpaceCount }} of {{ $this->maxSpaces }} Spaces
                         (the Free plan limit).
                     </p>
@@ -22,9 +22,9 @@
 
             {{-- Cap block (form pre-flight, before submit) --}}
             @if (! $spaceId && $this->isAtCap)
-                <div class="bg-red-50 border border-red-200 text-red-900 px-4 py-3 rounded"
+                <div class="rounded-xl bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm"
                      data-testid="cap-block">
-                    <p class="text-sm">
+                    <p>
                         You've reached the Free plan limit of {{ $this->maxSpaces }} Spaces.
                         Delete a Space or contact support.
                     </p>
@@ -32,13 +32,13 @@
             @endif
 
             @if ($errors->has('cap'))
-                <div class="bg-red-50 border border-red-200 text-red-900 px-4 py-3 rounded"
+                <div class="rounded-xl bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm"
                      data-testid="cap-error">
-                    <p class="text-sm">{{ $errors->first('cap') }}</p>
+                    <p>{{ $errors->first('cap') }}</p>
                 </div>
             @endif
 
-            <form wire:submit="save" class="space-y-4 bg-white shadow-sm rounded-lg p-6"
+            <form wire:submit="save" class="space-y-6 rounded-2xl border border-gray-200 bg-white p-5 sm:p-8 shadow-sm"
                   data-testid="space-form">
                 @csrf
 
@@ -63,16 +63,17 @@
                     <x-text-input wire:model.blur="slug" wire:change="probeSlug" id="slug" class="block mt-1 w-full" type="text"
                                   maxlength="60" required
                                   data-testid="slug-input" />
-                    <p class="mt-1 text-xs text-gray-500">
+                    <p class="mt-1 text-xs text-gray-600">
                         Lowercase, hyphens only, up to 60 chars. Cannot be one of:
                         s, api, admin, login, register, dashboard, billing, embed, assets, up.
                     </p>
                     <x-input-error :messages="$errors->get('slug')" class="mt-2" />
 
                     @if ($slugAvailable === false)
-                        <div class="mt-2 text-sm text-amber-700" data-testid="slug-taken">
+                        <div class="mt-2 text-sm text-red-700" data-testid="slug-taken">
                             That slug is taken. Try
-                            <button type="button" wire:click="applySuggestion" class="underline font-medium"
+                            <button type="button" wire:click="applySuggestion"
+                                    class="app-lift inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-3 py-1.5 ml-1 rounded-xl bg-white border border-gray-300 underline text-sm font-medium text-indigo-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                     data-testid="apply-suggestion">
                                 {{ $slugSuggestion }}
                             </button>
@@ -95,14 +96,14 @@
                 {{-- Ask --}}
                 <div>
                     <x-input-label for="ask" :value="__('Ask (the prompt shown to respondents)')" />
-                    <textarea wire:model="ask" id="ask" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm" rows="3" maxlength="2000" required></textarea>
+                    <textarea wire:model="ask" id="ask" class="block mt-1 w-full border-gray-300 rounded-xl shadow-sm" rows="3" maxlength="2000" required></textarea>
                     <x-input-error :messages="$errors->get('ask')" class="mt-2" />
                 </div>
 
                 {{-- Rating enabled --}}
-                <div class="flex items-center">
+                <div class="flex items-center min-h-[44px]">
                     <input wire:model="ratingEnabled" id="ratingEnabled" type="checkbox"
-                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" />
+                           class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                     <label for="ratingEnabled" class="ms-2 text-sm text-gray-700">
                         Collect a star rating (1–5)
                     </label>
@@ -112,7 +113,7 @@
                 <div>
                     <x-input-label for="theme" :value="__('Theme')" />
                     <select wire:model="theme" id="theme"
-                            class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">
+                            class="block mt-1 w-full min-h-[44px] sm:min-h-0 border-gray-300 rounded-xl shadow-sm">
                         <option value="minimal_light">Minimal light</option>
                         <option value="minimal_dark">Minimal dark</option>
                         <option value="soft_color">Soft color</option>
@@ -123,7 +124,7 @@
                 {{-- field_config --}}
                 <div>
                     <x-input-label :value="__('Optional fields')" />
-                    <p class="text-xs text-gray-500 mb-2">
+                    <p class="text-sm text-gray-600 mb-2">
                         Name, email, and address are always on and required. The toggles below
                         are for the three optional fields the public form may collect.
                     </p>
@@ -139,15 +140,17 @@
                     <div class="space-y-2">
                         @foreach ($fields as $key => $label)
                             @php $row = $fieldConfig[$key] ?? ['enabled' => false, 'required' => false]; @endphp
-                            <div class="flex items-center justify-between border border-gray-200 rounded px-3 py-2">
+                            <div class="flex flex-wrap items-center justify-between gap-2 border border-gray-200 rounded-xl px-3 py-2 min-h-[44px]">
                                 <span class="text-sm text-gray-800">{{ $label }}</span>
-                                <div class="flex items-center gap-4 text-sm">
-                                    <label class="inline-flex items-center gap-1">
-                                        <input type="checkbox" wire:model="fieldConfig.{{ $key }}.enabled" />
+                                <div class="flex flex-wrap items-center gap-4 text-sm">
+                                    <label class="inline-flex items-center gap-1 min-h-[44px] sm:min-h-0">
+                                        <input type="checkbox" wire:model="fieldConfig.{{ $key }}.enabled"
+                                               class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                                         <span>Enabled</span>
                                     </label>
-                                    <label class="inline-flex items-center gap-1">
-                                        <input type="checkbox" wire:model="fieldConfig.{{ $key }}.required" />
+                                    <label class="inline-flex items-center gap-1 min-h-[44px] sm:min-h-0">
+                                        <input type="checkbox" wire:model="fieldConfig.{{ $key }}.required"
+                                               class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                                         <span>Required</span>
                                     </label>
                                 </div>
@@ -156,11 +159,12 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end gap-3">
-                    <a href="{{ route('spaces.index') }}" wire:navigate class="text-sm text-gray-600 hover:text-gray-900">
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <a href="{{ route('spaces.index') }}" wire:navigate class="inline-flex items-center min-h-[44px] sm:min-h-0 px-3 text-sm font-semibold text-gray-600 hover:text-gray-900">
                         Cancel
                     </a>
                     <x-primary-button
+                        class="!rounded-xl !shadow-lg !shadow-indigo-600/20"
                         data-testid="space-save"
                         :disabled="! $spaceId && $this->isAtCap"
                         wire:loading.attr="disabled"

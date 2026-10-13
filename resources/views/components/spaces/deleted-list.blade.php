@@ -26,23 +26,23 @@
 ])
 <div class="divide-y divide-gray-100">
     @forelse ($spaces as $space)
-        <div class="flex items-center justify-between p-4"
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 sm:p-5 min-w-0"
              data-testid="deleted-row">
-            <div>
-                <div class="font-medium text-gray-900">{{ $space->title }}</div>
-                <div class="text-xs text-gray-500">
+            <div class="min-w-0">
+                <div class="font-semibold text-gray-900">{{ $space->title }}</div>
+                <div class="mt-1 text-sm text-gray-600">
                     /s/{{ $space->slug }} ·
                     deleted {{ $space->deleted_at?->diffForHumans() }}
                 </div>
             </div>
             <button wire:click="{{ $action }}({{ $space->id }})"
-                    class="text-sm text-indigo-600 hover:text-indigo-900"
+                    class="app-lift inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-2 rounded-xl bg-white border border-gray-300 text-sm font-semibold text-indigo-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     data-testid="restore-button">
                 Restore
             </button>
         </div>
     @empty
-        <div class="p-6 text-center text-gray-500"
+        <div class="p-6 text-center text-sm text-gray-600"
              data-testid="deleted-empty-state">
             No deleted Spaces.
         </div>
