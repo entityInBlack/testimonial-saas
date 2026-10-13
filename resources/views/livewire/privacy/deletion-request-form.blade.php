@@ -16,9 +16,16 @@
              throttle). The body is intentionally identical
              across all five "nothing-revealed" cases; the
              NOTHING-REVEALED test asserts this byte-for-byte. --}}
-        <div class="bg-white shadow-sm rounded-lg p-6 text-center space-y-3"
+        <div class="rounded-2xl border border-gray-200 bg-white shadow-xl shadow-indigo-600/10 p-6 sm:p-8 text-center space-y-3"
              data-testid="deletion-thanks">
-            <h1 class="text-xl font-semibold text-gray-900" data-testid="deletion-thanks-title">
+            <span class="gst-pop inline-flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600"
+                  data-testid="deletion-thanks-icon"
+                  aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </span>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900" data-testid="deletion-thanks-title">
                 Thanks — your request has been recorded.
             </h1>
             <p class="text-sm text-gray-600" data-testid="deletion-thanks-body">
@@ -28,12 +35,12 @@
     @else
         {{-- Title on the canvas (not a second card) --}}
         <header class="space-y-1">
-            <h1 class="text-2xl font-semibold text-gray-900" data-testid="deletion-title">Request removal of a testimonial</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900" data-testid="deletion-title">Request removal of a testimonial</h1>
             <p class="text-sm text-gray-600">Use this form to ask the owner to remove a testimonial you submitted.</p>
         </header>
 
         <form wire:submit="submit"
-              class="bg-white shadow-sm rounded-lg p-4 sm:p-6 space-y-4"
+              class="rounded-2xl border border-gray-200 bg-white shadow-xl shadow-indigo-600/10 p-4 sm:p-6 space-y-4"
               data-testid="deletion-form">
             @csrf
 
@@ -50,7 +57,7 @@
                 <input id="deletion-slug" type="text" wire:model="spaceSlug" maxlength="60" required
                        class="mt-1 block w-full text-base rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 min-h-[44px]"
                        data-testid="deletion-slug" />
-                <p class="mt-1 text-xs text-gray-500">The slug appears in the public URL <code>/s/&lt;slug&gt;</code>.</p>
+                <p class="mt-1 text-xs text-gray-600">The slug appears in the public URL <code>/s/&lt;slug&gt;</code>.</p>
                 @error('spaceSlug') <p class="mt-1 text-sm text-red-600" data-testid="deletion-slug-error">{{ $message }}</p> @enderror
             </div>
 
@@ -59,7 +66,7 @@
                 <input id="deletion-testimonial-id" type="text" wire:model="testimonialId" maxlength="20"
                        class="mt-1 block w-full text-base rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 min-h-[44px]"
                        data-testid="deletion-testimonial-id" />
-                <p class="mt-1 text-xs text-gray-500">Only set this if you have a record id. We accept it only when it matches a testimonial in the Space above.</p>
+                <p class="mt-1 text-xs text-gray-600">Only set this if you have a record id. We accept it only when it matches a testimonial in the Space above.</p>
                 @error('testimonialId') <p class="mt-1 text-sm text-red-600" data-testid="deletion-testimonial-id-error">{{ $message }}</p> @enderror
             </div>
 
@@ -72,7 +79,7 @@
             </div>
 
             <div>
-                <x-primary-button class="w-full sm:w-auto"
+                <x-primary-button class="gst-btn w-full sm:w-auto !rounded-xl !shadow-lg !shadow-indigo-600/20"
                                   wire:loading.attr="disabled"
                                   wire:target="submit"
                                   data-testid="deletion-submit">

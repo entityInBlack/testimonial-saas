@@ -11,9 +11,18 @@
 
     @if ($submitted)
         {{-- Thank-you / locked / honeypot / duplicate all share this view --}}
-        <div class="bg-white shadow-sm rounded-lg p-4 sm:p-6 text-center space-y-3"
+        <div class="rounded-2xl border border-gray-200 bg-white shadow-xl shadow-indigo-600/10 p-6 sm:p-8 text-center space-y-3"
              data-testid="thanks-page">
-            <h1 class="text-xl font-semibold text-gray-900">
+            {{-- Check-circle icon chip — outside the h1, placed BEFORE it. --}}
+            <span class="gst-pop inline-flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600"
+                  data-testid="thanks-icon"
+                  aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </span>
+
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">
                 {{ $thanksMessage }}
             </h1>
             <p class="text-sm text-gray-600">
@@ -23,15 +32,15 @@
 
         <div class="text-center">
             <a href="{{ route('landing') }}"
-               class="inline-flex items-center min-h-[44px] px-2 text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
+               class="inline-flex items-center min-h-[44px] px-2 text-sm text-indigo-700 hover:text-indigo-900 underline underline-offset-2"
                data-testid="back-home-link">
                 Back to home
             </a>
         </div>
     @else
-        {{-- Space header (sits on the gray canvas, not in a card) --}}
+        {{-- Space header (sits on the canvas, not in a card) --}}
         <header class="space-y-1" data-testid="space-header">
-            <h1 class="text-2xl font-semibold text-gray-900">
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
                 {{ $space->title }}
             </h1>
             @if ($space->subtitle)
@@ -43,7 +52,7 @@
         </header>
 
         @if ($locked)
-            <div class="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded"
+            <div class="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-xl"
                  data-testid="locked-message">
                 <p class="text-sm">
                     This Space is not accepting responses right now.
@@ -52,21 +61,21 @@
 
             <div class="text-center">
                 <a href="{{ route('landing') }}"
-                   class="inline-flex items-center min-h-[44px] px-2 text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
+                   class="inline-flex items-center min-h-[44px] px-2 text-sm text-indigo-700 hover:text-indigo-900 underline underline-offset-2"
                    data-testid="back-home-link">
                     Back to home
                 </a>
             </div>
         @else
             @if ($throttledMessage)
-                <div class="bg-red-50 border border-red-200 text-red-900 px-4 py-3 rounded"
+                <div class="bg-red-50 border border-red-200 text-red-900 px-4 py-3 rounded-xl"
                      data-testid="throttle-error">
                     <p class="text-sm">{{ $throttledMessage }}</p>
                 </div>
             @endif
 
             @if ($photoErrorMessage)
-                <div class="bg-red-50 border border-red-200 text-red-900 px-4 py-3 rounded"
+                <div class="bg-red-50 border border-red-200 text-red-900 px-4 py-3 rounded-xl"
                      data-testid="photo-error">
                     <p class="text-sm">{{ $photoErrorMessage }}</p>
                 </div>
@@ -74,7 +83,7 @@
 
             <form wire:submit="submit"
                   enctype="multipart/form-data"
-                  class="bg-white shadow-sm rounded-lg p-4 sm:p-6 space-y-4"
+                  class="rounded-2xl border border-gray-200 bg-white shadow-xl shadow-indigo-600/10 p-4 sm:p-6 space-y-4"
                   data-testid="submission-form">
                 @csrf
 
@@ -195,7 +204,7 @@
                 </div>
 
                 <div>
-                    <x-primary-button class="w-full sm:w-auto"
+                    <x-primary-button class="gst-btn w-full sm:w-auto !rounded-xl !shadow-lg !shadow-indigo-600/20"
                                       data-testid="submit-button">
                         Submit testimonial
                     </x-primary-button>
@@ -203,7 +212,7 @@
 
                 <div class="text-center">
                     <a href="{{ route('landing') }}"
-                       class="inline-flex items-center min-h-[44px] px-2 text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
+                       class="inline-flex items-center min-h-[44px] px-2 text-sm text-indigo-700 hover:text-indigo-900 underline underline-offset-2"
                        data-testid="back-home-link">
                         Back to home
                     </a>

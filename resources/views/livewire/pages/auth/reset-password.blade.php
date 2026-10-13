@@ -106,7 +106,16 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <h1 class="text-2xl font-semibold text-gray-900 mb-4"
+    {{-- Icon chip (key) — outside the h1, placed BEFORE it. --}}
+    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 mb-4"
+          data-testid="auth-icon"
+          aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+        </svg>
+    </span>
+
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 mb-2"
         data-testid="auth-heading">{{ __('Set a new password') }}</h1>
 
     <form wire:submit="resetPassword">
@@ -139,7 +148,7 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <x-primary-button class="w-full sm:w-auto">
+            <x-primary-button class="gst-btn w-full sm:w-auto !rounded-xl !shadow-lg !shadow-indigo-600/20">
                 {{ __('Reset password') }}
             </x-primary-button>
         </div>
