@@ -25,7 +25,7 @@ use Livewire\WithFileUploads;
  * in `App\Support\SubmissionService`. That separation makes the
  * pipeline unit-testable and keeps the Livewire surface small.
  */
-#[Layout('layouts.guest')]
+#[Layout('layouts.guest', ['cardless' => true, 'contentMaxWidth' => 'max-w-2xl'])]
 class PublicSubmission extends Component
 {
     use WithFileUploads;

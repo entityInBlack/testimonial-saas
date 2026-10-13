@@ -39,7 +39,7 @@ use Livewire\Component;
  *       validation fail   -> no row
  *       otherwise         -> one row, status='open', acted_at=null
  */
-#[Layout('layouts.guest')]
+#[Layout('layouts.guest', ['cardless' => true, 'contentMaxWidth' => 'max-w-2xl'])]
 class DeletionRequestForm extends Component
 {
     /**

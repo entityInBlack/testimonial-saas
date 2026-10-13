@@ -1,81 +1,105 @@
 <div>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Spaces') }}
-            </h2>
-            <div class="flex items-center gap-3">
+        <x-page-header :title="__('Spaces')" data-testid="spaces-page-header">
+            <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('spaces.deleted') }}" wire:navigate
-                   class="text-sm text-gray-600 hover:text-gray-900"
+                   class="app-lift inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-2 rounded-xl bg-white border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                    data-testid="deleted-tab-link">
                     Deleted Spaces
                 </a>
                 @if (! $this->isAtCap)
                     <a href="{{ route('spaces.new') }}" wire:navigate
-                       class="inline-flex items-center px-3 py-1.5 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700"
+                       class="app-lift inline-flex items-center justify-center min-h-[44px] px-6 py-3 rounded-xl bg-indigo-600 border border-transparent text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                        data-testid="new-space-link">
                         New Space
                     </a>
                 @endif
             </div>
-        </div>
+        </x-page-header>
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
 
             @if (session('status'))
-                <div class="bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded"
+                <div class="rounded-xl bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm"
                      data-testid="status-flash">
                     {{ session('status') }}
                 </div>
             @endif
 
             @if ($this->showWarningBanner)
-                <div class="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded"
+                <div class="rounded-xl bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 text-sm"
                      data-testid="cap-warning">
-                    <p class="text-sm">
+                    <p>
                         You're using {{ $this->liveSpaceCount }} of {{ $this->maxSpaces }} Spaces
                         (the Free plan limit).
                     </p>
                 </div>
             @endif
 
-            <div class="bg-white shadow-sm rounded-lg divide-y divide-gray-100"
+            <div class="space-y-4"
                  data-testid="space-list">
                 @forelse ($this->spaces as $space)
-                    <div class="flex items-center justify-between p-4" data-testid="space-row">
-                        <div>
-                            <div class="font-medium text-gray-900">{{ $space->title }}</div>
-                            <div class="text-xs text-gray-500">
-                                /s/{{ $space->slug }} · public_id: {{ $space->public_id }}
+                    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-4 sm:p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0"
+                         data-testid="space-row">
+                        <div class="min-w-0 space-y-1">
+                            <div class="font-semibold text-gray-900">
+                                <a href="{{ route('inbox.index', ['spaceId' => $space->id]) }}"
+                                   wire:navigate
+                                   class="text-gray-900 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+                                   data-testid="space-row-title-link">
+                                    {{ $space->title }}
+                                </a>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <a href="{{ url('/s/'.$space->slug) }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="text-indigo-700 underline hover:text-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded break-all"
+                                   data-testid="space-row-public-link">
+                                    /s/{{ $space->slug }}
+                                </a>
+                            </div>
+                            <div class="text-xs text-gray-600">
+                                <span class="inline-flex items-center rounded-md bg-gray-50 border border-gray-200 px-2 py-0.5 font-mono">
+                                    public_id: {{ $space->public_id }}
+                                </span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex flex-wrap items-center gap-2">
                             <a href="{{ route('spaces.embed', ['space' => $space->id]) }}" wire:navigate
-                               class="text-sm text-indigo-600 hover:text-indigo-900"
+                               class="app-lift inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-2 rounded-xl bg-white border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                data-testid="embed-link">
                                 Embed
                             </a>
                             <a href="{{ route('spaces.edit', ['space' => $space->id]) }}" wire:navigate
-                               class="text-sm text-indigo-600 hover:text-indigo-900"
+                               class="app-lift inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-2 rounded-xl bg-white border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                data-testid="edit-link">
                                 Edit
                             </a>
                             <button wire:click="delete({{ $space->id }})"
                                     wire:confirm="Delete '{{ $space->title }}'? You can restore it from the Deleted tab within {{ (int) config('purge.retention_days', 30) }} days."
-                                    class="text-sm text-red-600 hover:text-red-900"
+                                    class="app-lift inline-flex items-center justify-center min-h-[44px] sm:min-h-0 px-4 py-2 rounded-xl bg-white border border-red-200 text-sm font-semibold text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                     data-testid="delete-button">
                                 Delete
                             </button>
                         </div>
                     </div>
                 @empty
-                    <div class="p-6 text-center text-gray-500" data-testid="empty-state">
-                        You don't have any Spaces yet.
-                        <a href="{{ route('spaces.new') }}" wire:navigate class="underline text-indigo-600">
+                    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-8 text-center"
+                         data-testid="empty-state">
+                        <div class="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5v10.5H3.75z M3.75 10.5h16.5" />
+                            </svg>
+                        </div>
+                        <p class="text-gray-700">You don't have any Spaces yet.</p>
+                        <a href="{{ route('spaces.new') }}" wire:navigate
+                           class="app-lift inline-flex items-center justify-center min-h-[44px] mt-4 px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                           data-testid="empty-create-space-link">
                             Create your first Space
-                        </a>.
+                        </a>
                     </div>
                 @endforelse
             </div>

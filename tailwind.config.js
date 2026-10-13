@@ -13,7 +13,10 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                // Wave 0a — D1: one system stack everywhere.
+                // No remote font; the landing/privacy pages already use this
+                // stack, and the app/guest layouts dropped the Figtree link.
+                sans: ['system-ui', '-apple-system', '"Segoe UI"', 'Roboto', ...defaultTheme.fontFamily.sans],
             },
         },
     },
