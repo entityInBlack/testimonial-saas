@@ -93,6 +93,18 @@
                     opacity: 1 !important;
                     transform: none !important;
                 }
+                /* Hover/focus must not lift buttons or feature cards either. */
+                .lvl-btn,
+                .lvl-btn:hover,
+                .lvl-btn:focus,
+                .lvl-btn:focus-visible,
+                .lvl-feature-card,
+                .lvl-feature-card:hover,
+                .lvl-feature-card:focus,
+                .lvl-feature-card:focus-within {
+                    transform: none !important;
+                    transition: none !important;
+                }
             }
         </style>
     </head>
@@ -216,7 +228,7 @@
                                                     <p class="truncate text-xs italic text-gray-600">I liked that the consent step was clear, and that I could take it back later.</p>
                                                 </div>
                                                 <div class="shrink-0" aria-label="4 out of 5 stars" role="img">
-                                                    <span class="text-gray-300 text-sm">★★★★★</span>
+                                                    <span class="text-amber-400 text-sm">★★★★</span><span class="text-gray-200 text-sm">★</span>
                                                 </div>
                                             </li>
                                             <li class="flex items-start gap-3 py-2.5">
@@ -227,9 +239,6 @@
                                                         <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">Hidden</span>
                                                     </div>
                                                     <p class="truncate text-xs italic text-gray-600">The form was short and easy to fill in on my phone.</p>
-                                                </div>
-                                                <div class="shrink-0" aria-label="No rating" role="img">
-                                                    <span class="text-gray-300 text-sm">★★★★★</span>
                                                 </div>
                                             </li>
                                         </ul>
@@ -357,8 +366,8 @@
                                     <span class="ml-3 text-xs font-medium text-gray-400">index.html</span>
                                 </div>
                                 <div class="overflow-x-auto">
-                                    <pre data-testid="landing-embed-snippet" class="px-5 py-5 text-sm leading-relaxed text-gray-100 font-mono whitespace-pre"><code><span class="text-violet-500">&lt;div</span> <span class="text-emerald-400">data-testimonial-space</span>=<span class="text-amber-400">"YOUR_SPACE_ID"</span><span class="text-violet-500">&gt;&lt;/div&gt;</span>
-<span class="text-violet-500">&lt;script</span> <span class="text-emerald-400">src</span>=<span class="text-amber-400">"{{ rtrim((string) config('app.url'), '/') }}/embed.js"</span> <span class="text-emerald-400">async</span><span class="text-violet-500">&gt;&lt;/script&gt;</span></code></pre>
+                                    <pre data-testid="landing-embed-snippet" class="px-5 py-5 text-sm leading-relaxed text-gray-100 font-mono whitespace-pre"><code><span class="text-indigo-300">&lt;div</span> <span class="text-emerald-400">data-testimonial-space</span>=<span class="text-amber-400">"YOUR_SPACE_ID"</span><span class="text-indigo-300">&gt;&lt;/div&gt;</span>
+<span class="text-indigo-300">&lt;script</span> <span class="text-emerald-400">src</span>=<span class="text-amber-400">"{{ rtrim((string) config('app.url'), '/') }}/embed.js"</span> <span class="text-emerald-400">async</span><span class="text-indigo-300">&gt;&lt;/script&gt;</span></code></pre>
                                 </div>
                             </div>
                         </div>
@@ -586,19 +595,21 @@
 
         {{-- ============================================================
              Scroll-reveal logic. One small inline script, no library.
-             Fail-safe: if JS is off, or the script errors, or
-             IntersectionObserver is missing, the .lvl-reveal class is
-             never added, so the static reveal CSS does not hide
-             anything (the reveal only hides after the script runs).
+             Order matters for the fail-safe:
+               1. Bail out early if IntersectionObserver is missing.
+               2. Construct the observer FIRST (no element is hidden yet).
+               3. THEN add .lvl-reveal to each target and observe it.
+             If any step throws, the catch block logs the error AND
+             strips BOTH classes from every reveal target, so every
+             section ends up fully visible. The static reveal CSS only
+             hides things once the script has added .lvl-reveal, so
+             with JS off nothing is ever hidden.
              ============================================================ --}}
         <script>
             (function () {
                 try {
                     if (typeof window === 'undefined' || !('IntersectionObserver' in window)) return;
                     var reveals = document.querySelectorAll('[data-reveal]');
-                    for (var i = 0; i < reveals.length; i++) {
-                        reveals[i].classList.add('lvl-reveal');
-                    }
                     var io = new IntersectionObserver(function (entries) {
                         entries.forEach(function (entry) {
                             if (entry.isIntersecting) {
@@ -607,9 +618,17 @@
                             }
                         });
                     }, { threshold: 0.1 });
-                    reveals.forEach(function (el) { io.observe(el); });
+                    for (var i = 0; i < reveals.length; i++) {
+                        reveals[i].classList.add('lvl-reveal');
+                        io.observe(reveals[i]);
+                    }
                 } catch (e) {
-                    /* fail-safe: leave everything visible */
+                    console.error('Scroll-reveal: failed to initialise, revealing everything.', e);
+                    var reveals2 = document.querySelectorAll('[data-reveal]');
+                    for (var j = 0; j < reveals2.length; j++) {
+                        reveals2[j].classList.remove('lvl-reveal');
+                        reveals2[j].classList.remove('is-visible');
+                    }
                 }
             })();
         </script>

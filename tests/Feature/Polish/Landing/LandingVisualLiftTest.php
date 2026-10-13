@@ -288,3 +288,75 @@ test('TL10: the prefers-reduced-motion guard is present in the landing body', fu
 
     expect($body)->toContain('prefers-reduced-motion');
 });
+
+test('TL11: responsive pins for the collage and the mobile card', function () {
+    // Would fail if: the collage stops being hidden below lg, the
+    // mobile card is hidden at lg or never shown below it, or the
+    // mobile block is nested inside the collage block (where it
+    // would itself be hidden on phones).
+    $body = (string) $this->get('/')->getContent();
+
+    // (a) Collage: hidden below lg, shown at lg and up.
+    $collagePattern = '/<[a-z0-9]+\b[^>]*data-testid="landing-collage"[^>]*>/i';
+    expect((bool) preg_match($collagePattern, $body, $m))->toBeTrue();
+    $collageTag = $m[0];
+    $collageTokens = preg_split('/\s+/', (string) preg_match('/class="([^"]*)"/', $collageTag, $cm) ? $cm[1] : '', -1, PREG_SPLIT_NO_EMPTY);
+    expect($collageTokens)->toContain('hidden');
+    expect($collageTokens)->toContain('lg:block');
+
+    // (b) Mobile card: shown below lg, hidden at lg and up, and must
+    // not be hidden unconditionally.
+    $mobilePattern = '/<[a-z0-9]+\b[^>]*data-testid="landing-collage-mobile"[^>]*>/i';
+    expect((bool) preg_match($mobilePattern, $body, $m2))->toBeTrue();
+    $mobileTag = $m2[0];
+    $mobileTokens = preg_split('/\s+/', (string) preg_match('/class="([^"]*)"/', $mobileTag, $cm2) ? $cm2[1] : '', -1, PREG_SPLIT_NO_EMPTY);
+    expect($mobileTokens)->toContain('lg:hidden');
+    expect($mobileTokens)->not->toContain('hidden');
+
+    // (c) Nesting guard: between the collage opening tag and the
+    // mobile opening tag, every <div ...> has a matching </div>.
+    $collageStart = strpos($body, $collageTag);
+    expect($collageStart)->toBeInt()->not->toBeFalse();
+    $mobileStart = strpos($body, $mobileTag, $collageStart);
+    expect($mobileStart)->toBeInt()->not->toBeFalse();
+    $between = substr($body, $collageStart, $mobileStart - $collageStart);
+
+    $openCount = preg_match_all('/<div\b/', $between);
+    $closeCount = preg_match_all('/<\/div>/', $between);
+    expect($openCount)->toBe($closeCount);
+});
+
+test('TL12: reveal script structure', function () {
+    // Would fail if: the catch becomes empty or loses console.error,
+    // or the hidden class is added before the observer exists. (Weak
+    // static guard; the real check is the manual browser test.)
+    $body = (string) $this->get('/')->getContent();
+
+    // Grab the inline <script> that has no src attribute and contains
+    // "IntersectionObserver".
+    $pattern = '/<script\b(?![^>]*\bsrc=)[^>]*>.*?IntersectionObserver.*?<\/script>/is';
+    expect((bool) preg_match($pattern, $body, $m))->toBeTrue();
+    $script = $m[0];
+
+    // (a) Must call console.error.
+    expect($script)->toContain('console.error');
+
+    // (b) Must have NO empty catch block (tolerates whitespace, single-
+    // line // comments and /* … */ comments between { and }).
+    $emptyCatch = '/catch\s*\(\s*\w+\s*\)\s*\{\s*(?:\/\*.*?\*\/\s*|\/\/[^\n]*\s*)*\}/s';
+    expect((bool) preg_match($emptyCatch, $script))->toBeFalse();
+
+    // (c) Observer is constructed BEFORE lvl-reveal is added, and
+    // both exist in the script.
+    $observerPos = strpos($script, 'new IntersectionObserver');
+    $addPos = preg_match('/classList\.add\(\s*[\'"]lvl-reveal[\'"]\s*\)/', $script, $am, PREG_OFFSET_CAPTURE) === 1
+        ? $am[0][1]
+        : false;
+    expect($observerPos)->toBeInt()->not->toBeFalse();
+    expect($addPos)->toBeInt()->not->toBeFalse();
+    expect($observerPos)->toBeLessThan($addPos);
+
+    // (d) Must contain at least one indexed `for (` loop (FIX 1
+    // requires an indexed loop over [data-reveal]).
+    expect((bool) preg_match('/for\s*\(/', $script))->toBeTrue();
+});
