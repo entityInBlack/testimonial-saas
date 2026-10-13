@@ -79,7 +79,7 @@ Never run two Pest sessions at once (the test database is shared).
 php artisan test
 ```
 
-At commit `f126509` the suite is 399 tests, 1736 assertions, exit code 0. On PHP 8.5 Pest prints "deprecated" instead of "passed" for each test because of a PDO deprecation notice; these are not failures. Check the exit code:
+At the final polish merge `b72d1d3` the suite is 496 tests, 2695 assertions, exit code 0 (it was 399 tests, 1736 assertions at `f126509`; the UI polish added its own tests). On PHP 8.5 Pest prints "deprecated" instead of "passed" for each test because of a PDO deprecation notice; these are not failures. Check the exit code:
 
 ```powershell
 php artisan test; echo $LASTEXITCODE
@@ -119,12 +119,15 @@ No queue worker is needed. The app does not use `ShouldQueue`, `Queue::push`, `-
 - Step 6 — Purge job + scheduler + backups + trusted-proxy config.
 - Step 7 — Embed builder + `embed.js` + public embed API + caching.
 - Step 8 — Landing + privacy + `/privacy/request-deletion` + fixture seeders + demo embed page (this README is also part of Step 8).
+- UI polish (after the 8 steps; visual only, no PRD, data-model or build-order change): one shared header, footer and text wordmark; one button style; page headers; Spaces rows that link to their Inbox; 320 px layouts; a redesigned landing page; guest, auth, public-form and privacy pages in the same look; a visual lift of Dashboard, Spaces, Inbox and Profile; and one testimonial card look across the Inbox, the embed builder preview and the embed widget. New tests cover it (the Shell, Landing, Guest, AppPages and Embed `CardLookTest` groups under `tests/Feature/Polish`).
 
 ### Not done
 
 Closed by this README: 6.5 (scheduler cron line), 6.7 (third-party limits marked UNVERIFIED), 6.8 (`CLOUDFLARE_HEADERS_ENABLED` warning), 8.19 (the README itself).
 
 Closed after the README was first written: 8.21 (fresh-clone end-to-end verification: fresh clone + `.env` + `php artisan migrate --seed` + `php artisan serve`, then the Step 8 "Done means" checks) passed on 11 Oct 2026 (commit `0ad2f80`) with no README gaps found, and the OpenSpec change was verified (112/112 tasks) and archived on 12 Oct 2026 (commit `e7db5b0`). No task in `tasks.md` is open.
+
+UI polish, not checked: JavaScript switched off, reduced-motion settings, whether the widget carousel Next button scrolls, and an Inbox row with a real photo URL. The landing sample cards use text star glyphs (★) instead of inline SVG.
 
 Known limitation (by design): the dashboard's "open deletion requests" list is matched to the owner's **live** Spaces by `space_id`. Requests whose `space_id` points at a soft-deleted Space are not shown until the owner restores the Space. The data model calls this out so it is not rediscovered as a bug.
 
@@ -138,11 +141,12 @@ Out of scope by design: v1 ships the Free plan only (no Stripe, no Cashier, no `
 | Skill: code-review | USED | A user-level "code-review" skill (lives outside the repo) ran twice on 11 Oct 2026, report-only (no code changes by the skill). The skill spawns two parallel sub-agents: a Standards reviewer (CLAUDE.md + a code-smell baseline) and a Spec reviewer (PRD, build order, data model, OpenSpec change). Scope: changes since the root commit `5639e10` (so the root commit's own files, mostly the Laravel/Breeze skeleton plus Steps 1-2, were not in the diff). Outcome: about 30 findings across both runs; most were false, cited the wrong rule, or were already-decided design choices; two small real fixes came out: removed the unused Laravel welcome view (`329d220`) and aligned the consent v1 wording in the docs with `config/consent.php` (`4f79c8d`). |
 | CLAUDE.md | USED | Present at repo root (commit `566f97d`); a fresh puku-cli session started in the repo root showed it loaded. |
 | Hook | NOT used | — |
-| MCP / Playwright | NOT used | — |
+| Emdash | USED | Two puku-cli tasks ran in parallel as Emdash worktrees (`emdash/polish-embed`, `emdash/polish-app-pages`) for the UI polish; see section 5. |
+| MCP / Playwright | USED | Claude (the chat assistant, not puku-cli) drove a browser through the Playwright MCP server for UI checks during the 13 Oct 2026 polish work (seven page snapshots, kept outside the repo). Claude also checked the Part 3 card look in the Cowork built-in browser at 320 px and desktop width (Inbox, embed builder, widget). |
 
 ### How the workflow ran
 
-Claude (chat) wrote master prompts; puku-cli (a Claude Code fork, v1.8.56) implemented them in the repo; the human (Jahin) reviewed the real diffs and code, ran the tests himself, and committed. Models: puku-ai-2.8 for Steps 1-7, Opus 4.8 for later fixes, `CLAUDE.md`, verify, and both code reviews. The loop was: plan (Claude) → implement (puku-cli) → verify (puku-cli + human run of `php artisan test`) → human review of the real diff → commit by the human.
+Claude (chat) wrote master prompts; puku-cli (a Claude Code fork, v1.8.56) implemented them in the repo; the human (Jahin) reviewed the real diffs and code, ran the tests himself, and committed. Models: puku-ai-2.8 for Steps 1-7, Opus 4.8 for later fixes, `CLAUDE.md`, verify, and both code reviews. The loop was: plan (Claude) → implement (puku-cli) → verify (puku-cli + human run of `php artisan test`) → human review of the real diff → commit by the human. The later UI polish used the same loop: Claude wrote the master prompts, puku-cli implemented them (two of them in parallel Emdash tasks), Jahin ran the tests and committed, and Claude reviewed the real files and checked pages in a browser.
 
 ### What human review caught
 
@@ -164,6 +168,17 @@ Two puku-cli agents ran at the same time in separate git worktrees (created with
 Agents edited only; no tests ran inside the worktrees. The human reviewed both real diffs, committed, merged into `main` with `--no-ff` (`19556e7`, `f126509`), no conflicts, then ran the full suite once (399 pass, exit 0) and pushed `main` and both branches (branches kept as evidence).
 
 Honest notes: one agent ran a disallowed `php -r` command that crashed immediately (no effect on the repo); the locked state of the public page was checked by test only, not in the browser.
+
+### Second parallel round: Emdash (UI polish)
+
+Later, for the UI polish, two puku-cli sessions ran as Emdash tasks. Each Emdash task is its own git worktree and branch; both started from `origin/polish-final` with "Push branch to remote" off and edited different files:
+
+- `emdash/polish-embed` (`84f5af8`): embed polish (`embed.js` width-bucket columns, safe background colour, human dates), the builder preview and a copy button.
+- `emdash/polish-app-pages` (`0497741`): page headers, one button style, Spaces row links, dashboard and Inbox polish at 320 px, the "Wall of Love" label.
+
+Both were merged into `polish-final`. The visual lift (landing, guest pages, app pages and one testimonial card look, built on `polish-visual`) was then merged into `main` with `--no-ff` as `b72d1d3` (no conflicts; 60 files changed, no routes, config or migrations). One existing test file, `DashboardGraphTest`, changed in that merge, and the change is comment text only: no assertion was touched (checked with `git diff pre-polish HEAD`). The full suite on the merged `main` ran 496 tests, 2695 assertions, exit 0. After the merge the two Emdash tasks, their worktrees and the two branches were removed; the commits stay in `main`.
+
+Honest notes: worktree agents cannot run the tests (a worktree has no `.env`, `vendor` or `node_modules`), so their new tests were the weakest part and two of them (`SpaceRowsTest`, `NewSpaceButtonTest`) had to be fixed after review. Pest cannot run JavaScript or CSS, so motion, 320 px layout and colours were checked by hand in a browser.
 
 ## 6. Notes
 
